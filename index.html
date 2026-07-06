@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+<title>Treasury</title>
+
+<!-- iPhone home-screen / full-screen app behavior -->
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Treasury" />
+<meta name="theme-color" content="#1B2430" />
+<link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADBElEQVR4nO3dwW0TQRiA0QRRAjeunBF90AUHiuJAFzSSOqgBcQhCkZ3PJN7Z3TH73jEQMf71ZbzjrM39+w+f7uA5b/ZeAPMSB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcpLd7L2AW37/+OvnKl29H/8k5+uPnAnGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcpPvN/kfq81utuNo2d6nZOUjiIImDJA6SOEjbnVYm530r547++LlAHCRxkMRBEgdJHCRxkMRBEgdJHCRxkFb/TLB3nz+ef/Hnj4e1/93/z/aTXCuOZx/J+Z+q5J92nOQqTyuXH891f/OY9p3k4J3jiiU+fost5MQMkxy5cyyJ1xby1CSTHBbH8jXp49E8k9ziE4xPNjoRXG3jSY65TbBWeeH574pvWdUktwlONckBcSw5f8/zKsgMccw2Sa+QklaJ4+XBOsFetu8kl8axxjXRMa9YJ5zk+J3jtQnbPMruk3TNQRIHSRwkcZDGx/HaK+Rjnk1eYvdJLo1jjbPGMc8vE07SzT5T23eSrjlIfiv7xwy/eLubbJLDPtnnwrb28rsQdrzamCSOu5kmucXNPi4sRtl4ksN+OJanesxDyrl5Jjly51yyJmU8NckkBz+tPK7sVbufLJ41wyTd7DO1fSe51gXp37XOc5fojdpxkqufVnQwyvaT9AopSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRykYe+y39L5O+Jvwl5v27/ajS2XLYmDJA6SOEjiIN3kaYVt2DlI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhIvwH4PctZLERuQQAAAABJRU5ErkJggg==" />
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAADBElEQVR4nO3dwW0TQRiA0QRRAjeunBF90AUHiuJAFzSSOqgBcQhCkZ3PJN7Z3TH73jEQMf71ZbzjrM39+w+f7uA5b/ZeAPMSB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcpLd7L2AW37/+OvnKl29H/8k5+uPnAnGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcJHGQxEESB0kcpPvN/kfq81utuNo2d6nZOUjiIImDJA6SOEjbnVYm530r547++LlAHCRxkMRBEgdJHCRxkMRBEgdJHCRxkFb/TLB3nz+ef/Hnj4e1/93/z/aTXCuOZx/J+Z+q5J92nOQqTyuXH891f/OY9p3k4J3jiiU+fost5MQMkxy5cyyJ1xby1CSTHBbH8jXp49E8k9ziE4xPNjoRXG3jSY65TbBWeeH574pvWdUktwlONckBcSw5f8/zKsgMccw2Sa+QklaJ4+XBOsFetu8kl8axxjXRMa9YJ5zk+J3jtQnbPMruk3TNQRIHSRwkcZDGx/HaK+Rjnk1eYvdJLo1jjbPGMc8vE07SzT5T23eSrjlIfiv7xwy/eLubbJLDPtnnwrb28rsQdrzamCSOu5kmucXNPi4sRtl4ksN+OJanesxDyrl5Jjly51yyJmU8NckkBz+tPK7sVbufLJ41wyTd7DO1fSe51gXp37XOc5fojdpxkqufVnQwyvaT9AopSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRwkcZDEQRIHSRykYe+y39L5O+Jvwl5v27/ajS2XLYmDJA6SOEjiIN3kaYVt2DlI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhI4iCJgyQOkjhIvwH4PctZLERuQQAAAABJRU5ErkJggg==" />
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+<style>
+  html, body { margin: 0; padding: 0; }
+  #root { min-height: 100vh; }
+  /* respect iPhone notch / home indicator safe areas when running full-screen */
+  body { padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+/* ============================================================
+   ICON SHIM (standalone build — no lucide-react dependency)
+   ============================================================ */
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback
+} = React;
+function makeIcon(symbol) {
+  return function IconCmp({
+    size = 16,
+    color
+  }) {
+    return /*#__PURE__*/React.createElement("span", {
+      style: {
+        fontSize: size,
+        lineHeight: 1,
+        color: color || "currentColor",
+        display: "inline-block",
+        fontFamily: "inherit"
+      }
+    }, symbol);
+  };
+}
+const LayoutDashboard = makeIcon("▦");
+const Users = makeIcon("👥");
+const Wallet = makeIcon("💼");
+const ArrowLeftRight = makeIcon("⇄");
+const Plus = makeIcon("＋");
+const Trash2 = makeIcon("🗑");
+const Pencil = makeIcon("✎");
+const Printer = makeIcon("🖨");
+const Languages = makeIcon("🌐");
+const ArrowDownCircle = makeIcon("↓");
+const ArrowUpCircle = makeIcon("↑");
+const Repeat = makeIcon("↻");
+const Send = makeIcon("➤");
+const Scale = makeIcon("⚖");
+const AlertTriangle = makeIcon("⚠");
+const CheckCircle2 = makeIcon("✓");
+const Archive = makeIcon("🗄");
+const ArchiveRestore = makeIcon("♻");
+const X = makeIcon("✕");
+const History = makeIcon("🕒");
+const Filter = makeIcon("▾");
+
+/* ============================================================
+   FONTS
+   ============================================================ */
+function useFonts() {
+  useEffect(() => {
+    const link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.href = "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap";
+    document.head.appendChild(link);
+    return () => document.head.removeChild(link);
+  }, []);
+}
+
+/* ============================================================
+   TRANSLATIONS
+   ============================================================ */
+const T = {
+  en: {
+    appName: "Treasury",
+    appSub: "Personal ledger",
+    dashboard: "Dashboard",
+    transactions: "Transactions",
+    people: "People",
+    treasury: "Accounts",
+    totalAccounts: "Total in Accounts",
+    totalPeople: "Total owed to People",
+    feePool: "Fee Pool (Loss)",
+    reconciled: "Books balance",
+    mismatch: "Out of balance",
+    accounts: "Accounts",
+    addAccount: "Add account",
+    accountName: "Account name",
+    accountType: "Type",
+    feeEnabled: "Has transfer fee",
+    balance: "Balance",
+    noAccounts: "No accounts yet. Add your first one.",
+    peopleTitle: "People",
+    addPerson: "Add person",
+    personName: "Name",
+    active: "Active",
+    archived: "Archived",
+    archive: "Archive",
+    unarchive: "Restore",
+    statement: "Statement",
+    noPeople: "No people yet. Add your first one.",
+    owedToThem: "You owe them",
+    owesYou: "Owes you",
+    settled: "Settled",
+    txTitle: "Transactions",
+    addTx: "New transaction",
+    type: "Type",
+    moneyIn: "Money In",
+    moneyOut: "Money Out",
+    internalTransfer: "Internal Transfer",
+    balanceTransfer: "Balance Transfer",
+    allocateLoss: "Allocate Loss",
+    amount: "Amount",
+    fee: "Fee amount",
+    feeBearer: "Who bears the fee?",
+    self: "This person",
+    other: "Another person",
+    receiver: "Receiver",
+    loss: "Unassigned (Loss)",
+    note: "Note (optional)",
+    date: "Date",
+    save: "Save",
+    cancel: "Cancel",
+    edit: "Edit",
+    delete: "Delete",
+    confirmDelete: "Delete this transaction? This is logged in the history.",
+    selectAccount: "Select account",
+    selectPerson: "Select person",
+    selectDestAccount: "Destination account",
+    selectDestPerson: "To person",
+    from: "From",
+    to: "To",
+    filterByPerson: "Person",
+    filterByType: "Type",
+    filterFrom: "From date",
+    filterTo: "To date",
+    clearFilters: "Clear filters",
+    all: "All",
+    noTx: "No transactions match your filters.",
+    history: "Edit history",
+    createdAt: "Created",
+    actions: "Actions",
+    close: "Close",
+    warnArchive: "This person has a non-zero balance. Archive anyway?",
+    warnDeleteAccount: "This account has transactions and cannot be deleted. You can rename it instead.",
+    printStatement: "Print / Save as PDF",
+    statementFor: "Statement for",
+    period: "Period",
+    runningBalance: "Running balance",
+    generatedOn: "Generated on",
+    noStatementTx: "No transactions in this period.",
+    language: "العربية",
+    needAmount: "Enter a valid amount",
+    needAccount: "Select an account",
+    needPerson: "Select a person",
+    needDestAccount: "Select a destination account",
+    needDestPerson: "Select a destination person",
+    sameAccount: "Source and destination must differ",
+    samePerson: "Sender and receiver must differ",
+    lossExceeds: "Amount exceeds current fee pool",
+    feeOptional: "Only applies if this account has a transfer fee",
+    activity: "Activity log (audit trail)",
+    noActivity: "No changes yet.",
+    created: "created",
+    edited: "edited",
+    deleted: "deleted",
+    dashboardHint: "Accounts + Fee Pool should always equal what you owe everyone combined."
+  },
+  ar: {
+    appName: "الخزينة",
+    appSub: "دفتر حسابات شخصي",
+    dashboard: "الرئيسية",
+    transactions: "المعاملات",
+    people: "الأشخاص",
+    treasury: "الحسابات",
+    totalAccounts: "إجمالي الحسابات",
+    totalPeople: "إجمالي المستحق للأشخاص",
+    feePool: "رصيد الرسوم (الخسارة)",
+    reconciled: "الدفاتر متوازنة",
+    mismatch: "غير متوازن",
+    accounts: "الحسابات",
+    addAccount: "إضافة حساب",
+    accountName: "اسم الحساب",
+    accountType: "النوع",
+    feeEnabled: "يحتوي على رسوم تحويل",
+    balance: "الرصيد",
+    noAccounts: "لا توجد حسابات بعد. أضف أول حساب.",
+    peopleTitle: "الأشخاص",
+    addPerson: "إضافة شخص",
+    personName: "الاسم",
+    active: "نشط",
+    archived: "مؤرشف",
+    archive: "أرشفة",
+    unarchive: "استعادة",
+    statement: "كشف حساب",
+    noPeople: "لا يوجد أشخاص بعد. أضف أول شخص.",
+    owedToThem: "أنت مدين له",
+    owesYou: "مدين لك",
+    settled: "مسدد",
+    txTitle: "المعاملات",
+    addTx: "معاملة جديدة",
+    type: "النوع",
+    moneyIn: "إيداع",
+    moneyOut: "سحب",
+    internalTransfer: "تحويل داخلي",
+    balanceTransfer: "تحويل رصيد بين شخصين",
+    allocateLoss: "توزيع الخسارة",
+    amount: "المبلغ",
+    fee: "قيمة الرسوم",
+    feeBearer: "من يتحمل الرسوم؟",
+    self: "هذا الشخص",
+    other: "شخص آخر",
+    receiver: "المستلم",
+    loss: "غير محدد (خسارة)",
+    note: "ملاحظة (اختياري)",
+    date: "التاريخ",
+    save: "حفظ",
+    cancel: "إلغاء",
+    edit: "تعديل",
+    delete: "حذف",
+    confirmDelete: "حذف هذه المعاملة؟ سيتم تسجيل ذلك في السجل.",
+    selectAccount: "اختر الحساب",
+    selectPerson: "اختر الشخص",
+    selectDestAccount: "الحساب المستقبل",
+    selectDestPerson: "إلى شخص",
+    from: "من",
+    to: "إلى",
+    filterByPerson: "الشخص",
+    filterByType: "النوع",
+    filterFrom: "من تاريخ",
+    filterTo: "إلى تاريخ",
+    clearFilters: "مسح الفلاتر",
+    all: "الكل",
+    noTx: "لا توجد معاملات مطابقة للفلاتر.",
+    history: "سجل التعديلات",
+    createdAt: "تاريخ الإنشاء",
+    actions: "إجراءات",
+    close: "إغلاق",
+    warnArchive: "لدى هذا الشخص رصيد غير صفري. هل تريد الأرشفة على أي حال؟",
+    warnDeleteAccount: "هذا الحساب يحتوي على معاملات ولا يمكن حذفه. يمكنك إعادة تسميته بدلاً من ذلك.",
+    printStatement: "طباعة / حفظ كـ PDF",
+    statementFor: "كشف حساب لـ",
+    period: "الفترة",
+    runningBalance: "الرصيد الجاري",
+    generatedOn: "تم الإنشاء في",
+    noStatementTx: "لا توجد معاملات في هذه الفترة.",
+    language: "English",
+    needAmount: "أدخل مبلغًا صحيحًا",
+    needAccount: "اختر حسابًا",
+    needPerson: "اختر شخصًا",
+    needDestAccount: "اختر حساب الوجهة",
+    needDestPerson: "اختر الشخص المستقبل",
+    sameAccount: "يجب أن يختلف الحساب المصدر عن الوجهة",
+    samePerson: "يجب أن يختلف المرسل عن المستقبل",
+    lossExceeds: "المبلغ يتجاوز رصيد الرسوم الحالي",
+    feeOptional: "ينطبق فقط إذا كان لهذا الحساب رسوم تحويل",
+    activity: "سجل النشاط (سجل التدقيق)",
+    noActivity: "لا توجد تغييرات بعد.",
+    created: "تم الإنشاء",
+    edited: "تم التعديل",
+    deleted: "تم الحذف",
+    dashboardHint: "يجب أن يساوي مجموع الحسابات + رصيد الرسوم دائمًا إجمالي ما تدين به للجميع."
+  }
+};
+
+/* ============================================================
+   TOKENS
+   ============================================================ */
+const COLORS = {
+  ink: "#1B2430",
+  inkSoft: "#3A4452",
+  paper: "#F6F4EE",
+  paperCard: "#FFFFFF",
+  line: "#E3DFD3",
+  green: "#2F6F5E",
+  greenSoft: "#E6F0EC",
+  rust: "#B5533C",
+  rustSoft: "#F7E9E4",
+  gold: "#B98A2E",
+  goldSoft: "#F5EDDC"
+};
+const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
+const todayISO = () => new Date().toISOString().slice(0, 10);
+const fmt = n => {
+  const v = Math.abs(n) < 0.005 ? 0 : n;
+  return v.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+
+/* Thousand-separator helpers for live-typed amount fields */
+function formatAmountText(raw) {
+  if (raw === "" || raw === null || raw === undefined) return "";
+  let clean = String(raw).replace(/[^\d.]/g, "");
+  const firstDot = clean.indexOf(".");
+  if (firstDot !== -1) clean = clean.slice(0, firstDot + 1) + clean.slice(firstDot + 1).replace(/\./g, "");
+  const [intRaw, decRaw] = clean.split(".");
+  let intPart = (intRaw || "").replace(/^0+(?=\d)/, "");
+  const withCommas = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return decRaw !== undefined ? `${withCommas}.${decRaw.slice(0, 2)}` : withCommas;
+}
+function parseAmountText(formatted) {
+  if (!formatted) return "";
+  const n = parseFloat(String(formatted).replace(/,/g, ""));
+  return Number.isFinite(n) ? n : "";
+}
+
+/* ============================================================
+   STORAGE
+   ============================================================ */
+const STORAGE_KEY = "ptm-data-v1";
+const emptyData = () => ({
+  accounts: [],
+  counterparties: [],
+  transactions: [],
+  auditLog: [],
+  lang: "en"
+});
+async function loadData() {
+  try {
+    const raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) {
+    console.error("Storage load failed", e);
+  }
+  return emptyData();
+}
+async function saveData(data) {
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.error("Storage save failed", e);
+  }
+}
+
+/* ============================================================
+   LEDGER COMPUTATION
+   ============================================================ */
+function computeLedger(transactions) {
+  const accountBal = {};
+  const cpBal = {};
+  let loss = 0;
+  const live = transactions.filter(t => !t.deleted);
+  const sorted = [...live].sort((a, b) => a.txDate < b.txDate ? -1 : a.txDate > b.txDate ? 1 : 0);
+  for (const t of sorted) {
+    const amt = Number(t.amount) || 0;
+    const fee = Number(t.feeAmount) || 0;
+    accountBal[t.accountId] = accountBal[t.accountId] || 0;
+    accountBal[t.toAccountId] = accountBal[t.toAccountId] || 0;
+    cpBal[t.counterpartyId] = cpBal[t.counterpartyId] || 0;
+    cpBal[t.toCounterpartyId] = cpBal[t.toCounterpartyId] || 0;
+    if (t.feeBearerCounterpartyId) cpBal[t.feeBearerCounterpartyId] = cpBal[t.feeBearerCounterpartyId] || 0;
+    switch (t.type) {
+      case "IN":
+        accountBal[t.accountId] += amt;
+        cpBal[t.counterpartyId] += amt;
+        break;
+      case "OUT":
+        accountBal[t.accountId] -= amt + fee;
+        cpBal[t.counterpartyId] -= amt;
+        if (fee > 0) {
+          if (t.feeBearerType === "self") cpBal[t.counterpartyId] -= fee;else if (t.feeBearerType === "other") cpBal[t.feeBearerCounterpartyId] -= fee;else loss += fee; // unassigned
+        }
+        break;
+      case "TRANSFER":
+        accountBal[t.accountId] -= amt + fee;
+        accountBal[t.toAccountId] += amt;
+        if (fee > 0) loss += fee; // internal transfer fees always start unassigned
+        break;
+      case "P2P":
+        {
+          cpBal[t.counterpartyId] -= amt;
+          let received = amt;
+          if (fee > 0) {
+            if (t.feeBearerType === "self") cpBal[t.counterpartyId] -= fee;else if (t.feeBearerType === "receiver") received -= fee;
+            loss += fee; // always lands in the fee pool for P2P (no account leg)
+          }
+          cpBal[t.toCounterpartyId] += received;
+          break;
+        }
+      case "LOSS_ALLOC":
+        cpBal[t.counterpartyId] -= amt;
+        loss -= amt;
+        break;
+      default:
+        break;
+    }
+  }
+  return {
+    accountBal,
+    cpBal,
+    loss
+  };
+}
+
+/* ============================================================
+   MAIN APP
+   ============================================================ */
+function App() {
+  useFonts();
+  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState(emptyData());
+  const [page, setPage] = useState("dashboard");
+  const [statementPerson, setStatementPerson] = useState(null);
+  useEffect(() => {
+    loadData().then(d => {
+      setData(d);
+      setLoading(false);
+    });
+  }, []);
+  useEffect(() => {
+    if (!loading) saveData(data);
+  }, [data, loading]);
+  const lang = data.lang || "en";
+  const t = T[lang];
+  const dir = lang === "ar" ? "rtl" : "ltr";
+  const displayFont = lang === "ar" ? "'Cairo', sans-serif" : "'Fraunces', serif";
+  const bodyFont = lang === "ar" ? "'Cairo', sans-serif" : "'Inter', sans-serif";
+  const ledger = useMemo(() => computeLedger(data.transactions), [data.transactions]);
+  const totalAccounts = Object.values(ledger.accountBal).reduce((a, b) => a + b, 0);
+  const totalCounterparties = Object.values(ledger.cpBal).reduce((a, b) => a + b, 0);
+  const reconciled = Math.abs(totalAccounts + ledger.loss - totalCounterparties) < 0.01;
+  const setLang = l => setData(d => ({
+    ...d,
+    lang: l
+  }));
+  const pushAudit = entry => setData(d => ({
+    ...d,
+    auditLog: [{
+      id: uid(),
+      ts: new Date().toISOString(),
+      ...entry
+    }, ...d.auditLog]
+  }));
+
+  /* ---------- Accounts ---------- */
+  const addAccount = acc => {
+    const newAcc = {
+      id: uid(),
+      createdAt: new Date().toISOString(),
+      ...acc
+    };
+    setData(d => ({
+      ...d,
+      accounts: [...d.accounts, newAcc]
+    }));
+    pushAudit({
+      action: "created",
+      entityType: "account",
+      entityId: newAcc.id,
+      label: acc.name
+    });
+  };
+  const updateAccount = (id, patch) => {
+    setData(d => ({
+      ...d,
+      accounts: d.accounts.map(a => a.id === id ? {
+        ...a,
+        ...patch
+      } : a)
+    }));
+    pushAudit({
+      action: "edited",
+      entityType: "account",
+      entityId: id,
+      label: patch.name || id
+    });
+  };
+  const deleteAccount = id => {
+    const used = data.transactions.some(tr => !tr.deleted && (tr.accountId === id || tr.toAccountId === id));
+    if (used) return false;
+    setData(d => ({
+      ...d,
+      accounts: d.accounts.filter(a => a.id !== id)
+    }));
+    pushAudit({
+      action: "deleted",
+      entityType: "account",
+      entityId: id,
+      label: id
+    });
+    return true;
+  };
+
+  /* ---------- Counterparties ---------- */
+  const addPerson = name => {
+    const p = {
+      id: uid(),
+      name,
+      archived: false,
+      createdAt: new Date().toISOString()
+    };
+    setData(d => ({
+      ...d,
+      counterparties: [...d.counterparties, p]
+    }));
+    pushAudit({
+      action: "created",
+      entityType: "person",
+      entityId: p.id,
+      label: name
+    });
+  };
+  const toggleArchive = (id, archived) => {
+    setData(d => ({
+      ...d,
+      counterparties: d.counterparties.map(p => p.id === id ? {
+        ...p,
+        archived
+      } : p)
+    }));
+    pushAudit({
+      action: archived ? "archived" : "unarchived",
+      entityType: "person",
+      entityId: id,
+      label: id
+    });
+  };
+  const renamePerson = (id, name) => {
+    setData(d => ({
+      ...d,
+      counterparties: d.counterparties.map(p => p.id === id ? {
+        ...p,
+        name
+      } : p)
+    }));
+    pushAudit({
+      action: "edited",
+      entityType: "person",
+      entityId: id,
+      label: name
+    });
+  };
+
+  /* ---------- Transactions ---------- */
+  const addTransaction = tx => {
+    const newTx = {
+      id: uid(),
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deleted: false,
+      history: [],
+      ...tx
+    };
+    setData(d => ({
+      ...d,
+      transactions: [...d.transactions, newTx]
+    }));
+    pushAudit({
+      action: "created",
+      entityType: "transaction",
+      entityId: newTx.id,
+      label: `${tx.type} ${tx.amount}`
+    });
+  };
+  const editTransaction = (id, patch) => {
+    setData(d => ({
+      ...d,
+      transactions: d.transactions.map(tr => {
+        if (tr.id !== id) return tr;
+        const changes = {};
+        Object.keys(patch).forEach(k => {
+          if (tr[k] !== patch[k]) changes[k] = {
+            old: tr[k],
+            new: patch[k]
+          };
+        });
+        return {
+          ...tr,
+          ...patch,
+          updatedAt: new Date().toISOString(),
+          history: [...tr.history, {
+            ts: new Date().toISOString(),
+            changes
+          }]
+        };
+      })
+    }));
+    pushAudit({
+      action: "edited",
+      entityType: "transaction",
+      entityId: id,
+      label: id
+    });
+  };
+  const deleteTransaction = id => {
+    setData(d => ({
+      ...d,
+      transactions: d.transactions.map(tr => tr.id === id ? {
+        ...tr,
+        deleted: true
+      } : tr)
+    }));
+    pushAudit({
+      action: "deleted",
+      entityType: "transaction",
+      entityId: id,
+      label: id
+    });
+  };
+  if (loading) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: COLORS.paper
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: bodyFont,
+        color: COLORS.inkSoft
+      }
+    }, "Loading…"));
+  }
+  const ctx = {
+    t,
+    lang,
+    dir,
+    displayFont,
+    bodyFont,
+    data,
+    ledger,
+    totalAccounts,
+    totalCounterparties,
+    reconciled,
+    addAccount,
+    updateAccount,
+    deleteAccount,
+    addPerson,
+    toggleArchive,
+    renamePerson,
+    addTransaction,
+    editTransaction,
+    deleteTransaction,
+    setStatementPerson
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    dir: dir,
+    style: {
+      fontFamily: bodyFont,
+      background: COLORS.paper,
+      minHeight: "100vh",
+      color: COLORS.ink
+    }
+  }, /*#__PURE__*/React.createElement("style", null, `
+        * { box-sizing: border-box; }
+        input, select, textarea, button { font-family: inherit; }
+        table { border-collapse: collapse; width: 100%; }
+        .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-thumb { background: ${COLORS.line}; border-radius: 4px; }
+        @media print {
+          .no-print { display: none !important; }
+          body { background: white !important; }
+        }
+      `), statementPerson ? /*#__PURE__*/React.createElement(StatementView, {
+    person: statementPerson,
+    onClose: () => setStatementPerson(null),
+    ctx: ctx
+  }) : /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      minHeight: "100vh"
+    }
+  }, /*#__PURE__*/React.createElement(Sidebar, {
+    page: page,
+    setPage: setPage,
+    lang: lang,
+    setLang: setLang,
+    t: t,
+    displayFont: displayFont
+  }), /*#__PURE__*/React.createElement("main", {
+    style: {
+      flex: 1,
+      padding: "28px 32px",
+      maxWidth: 1100
+    }
+  }, page === "dashboard" && /*#__PURE__*/React.createElement(Dashboard, {
+    ctx: ctx
+  }), page === "transactions" && /*#__PURE__*/React.createElement(TransactionsPage, {
+    ctx: ctx
+  }), page === "people" && /*#__PURE__*/React.createElement(PeoplePage, {
+    ctx: ctx
+  }), page === "treasury" && /*#__PURE__*/React.createElement(TreasuryPage, {
+    ctx: ctx
+  }))));
+}
+
+/* ============================================================
+   SIDEBAR
+   ============================================================ */
+function Sidebar({
+  page,
+  setPage,
+  lang,
+  setLang,
+  t,
+  displayFont
+}) {
+  const items = [{
+    key: "dashboard",
+    label: t.dashboard,
+    icon: LayoutDashboard
+  }, {
+    key: "transactions",
+    label: t.transactions,
+    icon: ArrowLeftRight
+  }, {
+    key: "people",
+    label: t.people,
+    icon: Users
+  }, {
+    key: "treasury",
+    label: t.treasury,
+    icon: Wallet
+  }];
+  return /*#__PURE__*/React.createElement("aside", {
+    className: "no-print",
+    style: {
+      width: 220,
+      background: COLORS.ink,
+      color: "#fff",
+      padding: "24px 16px",
+      display: "flex",
+      flexDirection: "column"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 32,
+      paddingInline: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontFamily: displayFont,
+      fontSize: 22,
+      fontWeight: 700,
+      letterSpacing: 0.3
+    }
+  }, t.appName), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      opacity: 0.6,
+      marginTop: 2
+    }
+  }, t.appSub)), /*#__PURE__*/React.createElement("nav", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 4,
+      flex: 1
+    }
+  }, items.map(it => {
+    const Icon = it.icon;
+    const active = page === it.key;
+    return /*#__PURE__*/React.createElement("button", {
+      key: it.key,
+      onClick: () => setPage(it.key),
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "10px 12px",
+        borderRadius: 8,
+        border: "none",
+        cursor: "pointer",
+        textAlign: "start",
+        background: active ? "rgba(47,111,94,0.35)" : "transparent",
+        color: active ? "#fff" : "rgba(255,255,255,0.75)",
+        fontWeight: active ? 600 : 500,
+        fontSize: 14
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      size: 17
+    }), it.label);
+  })), /*#__PURE__*/React.createElement("button", {
+    onClick: () => setLang(lang === "en" ? "ar" : "en"),
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      padding: "10px 12px",
+      borderRadius: 8,
+      border: "1px solid rgba(255,255,255,0.15)",
+      background: "transparent",
+      color: "rgba(255,255,255,0.85)",
+      cursor: "pointer",
+      fontSize: 13,
+      marginTop: 12
+    }
+  }, /*#__PURE__*/React.createElement(Languages, {
+    size: 15
+  }), " ", t.language));
+}
+
+/* ============================================================
+   DASHBOARD
+   ============================================================ */
+function Dashboard({
+  ctx
+}) {
+  const {
+    t,
+    data,
+    ledger,
+    totalAccounts,
+    totalCounterparties,
+    reconciled,
+    displayFont
+  } = ctx;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PageHeader, {
+    title: t.dashboard,
+    displayFont: displayFont
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: reconciled ? COLORS.greenSoft : COLORS.rustSoft,
+      border: `1px solid ${reconciled ? COLORS.green : COLORS.rust}`,
+      borderRadius: 12,
+      padding: "18px 22px",
+      marginBottom: 24,
+      display: "flex",
+      alignItems: "center",
+      gap: 16
+    }
+  }, reconciled ? /*#__PURE__*/React.createElement(CheckCircle2, {
+    size: 26,
+    color: COLORS.green
+  }) : /*#__PURE__*/React.createElement(AlertTriangle, {
+    size: 26,
+    color: COLORS.rust
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 16,
+      color: reconciled ? COLORS.green : COLORS.rust,
+      fontFamily: displayFont
+    }
+  }, reconciled ? t.reconciled : t.mismatch), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.inkSoft,
+      marginTop: 3
+    }
+  }, t.dashboardHint)), /*#__PURE__*/React.createElement(ScaleBar, {
+    left: totalAccounts + ledger.loss,
+    right: totalCounterparties
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(3, 1fr)",
+      gap: 16,
+      marginBottom: 28
+    }
+  }, /*#__PURE__*/React.createElement(StatCard, {
+    label: t.totalAccounts,
+    value: totalAccounts,
+    color: COLORS.green
+  }), /*#__PURE__*/React.createElement(StatCard, {
+    label: t.feePool,
+    value: ledger.loss,
+    color: COLORS.gold
+  }), /*#__PURE__*/React.createElement(StatCard, {
+    label: t.totalPeople,
+    value: totalCounterparties,
+    color: COLORS.ink
+  })), /*#__PURE__*/React.createElement(SectionTitle, {
+    title: t.accounts,
+    displayFont: displayFont
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+      gap: 12
+    }
+  }, data.accounts.map(a => /*#__PURE__*/React.createElement("div", {
+    key: a.id,
+    style: {
+      background: COLORS.paperCard,
+      border: `1px solid ${COLORS.line}`,
+      borderRadius: 10,
+      padding: 16
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: COLORS.inkSoft,
+      textTransform: "uppercase",
+      letterSpacing: 0.4
+    }
+  }, a.type), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 600,
+      margin: "4px 0 10px"
+    }
+  }, a.name), /*#__PURE__*/React.createElement("div", {
+    className: "mono",
+    style: {
+      fontSize: 20,
+      fontWeight: 600,
+      color: COLORS.green
+    }
+  }, fmt(ledger.accountBal[a.id] || 0)))), data.accounts.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
+    text: t.noAccounts
+  })));
+}
+function ScaleBar({
+  left,
+  right
+}) {
+  const diff = Math.abs(left - right);
+  const max = Math.max(Math.abs(left), Math.abs(right), 1);
+  const pct = Math.min(100, diff / max * 100);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      width: 140
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: 8,
+      background: "#fff",
+      borderRadius: 4,
+      overflow: "hidden",
+      border: `1px solid ${COLORS.line}`
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      height: "100%",
+      width: `${100 - pct}%`,
+      background: diff < 0.01 ? COLORS.green : COLORS.rust
+    }
+  })));
+}
+function StatCard({
+  label,
+  value,
+  color
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: COLORS.paperCard,
+      border: `1px solid ${COLORS.line}`,
+      borderRadius: 12,
+      padding: "18px 20px"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.inkSoft,
+      marginBottom: 8
+    }
+  }, label), /*#__PURE__*/React.createElement("div", {
+    className: "mono",
+    style: {
+      fontSize: 26,
+      fontWeight: 600,
+      color
+    }
+  }, fmt(value)));
+}
+function PageHeader({
+  title,
+  displayFont,
+  action
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      marginBottom: 22
+    }
+  }, /*#__PURE__*/React.createElement("h1", {
+    style: {
+      fontFamily: displayFont,
+      fontSize: 28,
+      fontWeight: 700,
+      margin: 0
+    }
+  }, title), action);
+}
+function SectionTitle({
+  title,
+  displayFont
+}) {
+  return /*#__PURE__*/React.createElement("h2", {
+    style: {
+      fontFamily: displayFont,
+      fontSize: 16,
+      fontWeight: 600,
+      margin: "0 0 12px",
+      color: COLORS.inkSoft
+    }
+  }, title);
+}
+function EmptyNote({
+  text
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.inkSoft,
+      fontSize: 13.5,
+      padding: "20px 0"
+    }
+  }, text);
+}
+function Btn({
+  children,
+  onClick,
+  variant = "primary",
+  small,
+  type = "button"
+}) {
+  const styles = {
+    primary: {
+      background: COLORS.ink,
+      color: "#fff",
+      border: "none"
+    },
+    outline: {
+      background: "transparent",
+      color: COLORS.ink,
+      border: `1px solid ${COLORS.line}`
+    },
+    danger: {
+      background: "transparent",
+      color: COLORS.rust,
+      border: `1px solid ${COLORS.rust}`
+    },
+    ghost: {
+      background: "transparent",
+      color: COLORS.inkSoft,
+      border: "none"
+    }
+  };
+  return /*#__PURE__*/React.createElement("button", {
+    type: type,
+    onClick: onClick,
+    style: {
+      ...styles[variant],
+      padding: small ? "6px 10px" : "9px 16px",
+      borderRadius: 8,
+      cursor: "pointer",
+      fontSize: small ? 12.5 : 13.5,
+      fontWeight: 600,
+      display: "inline-flex",
+      alignItems: "center",
+      gap: 6
+    }
+  }, children);
+}
+function Field({
+  label,
+  children
+}) {
+  return /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: "block",
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.inkSoft,
+      marginBottom: 5,
+      fontWeight: 500
+    }
+  }, label), children);
+}
+const inputStyle = {
+  width: "100%",
+  padding: "9px 11px",
+  borderRadius: 8,
+  border: `1px solid ${COLORS.line}`,
+  fontSize: 14,
+  background: "#fff"
+};
+
+/* Amount input: live thousand-separator formatting (e.g. 1,000.50),
+   up/down stepper buttons, and immune to accidental mouse-wheel changes
+   (it's a text input, not a native number input). */
+function AmountField({
+  value,
+  onChange,
+  step = 1
+}) {
+  const inputRef = React.useRef(null);
+  const display = formatAmountText(value === undefined || value === null ? "" : String(value));
+  const applyChange = (rawInputValue, cursorPos) => {
+    const digitsBeforeCursor = rawInputValue.slice(0, cursorPos).replace(/[^\d]/g, "").length;
+    const formatted = formatAmountText(rawInputValue);
+    onChange(parseAmountText(formatted) === "" ? "" : String(parseAmountText(formatted)));
+    requestAnimationFrame(() => {
+      if (!inputRef.current) return;
+      let seen = 0,
+        pos = 0;
+      for (; pos < formatted.length; pos++) {
+        if (/\d/.test(formatted[pos])) seen++;
+        if (seen >= digitsBeforeCursor) {
+          pos++;
+          break;
+        }
+      }
+      inputRef.current.setSelectionRange(pos, pos);
+    });
+  };
+  const nudge = dir => {
+    const current = parseAmountText(display) || 0;
+    const next = Math.max(0, +(current + dir * step).toFixed(2));
+    onChange(String(next));
+  };
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      alignItems: "stretch",
+      gap: 6
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    ref: inputRef,
+    type: "text",
+    inputMode: "decimal",
+    className: "mono",
+    style: {
+      ...inputStyle,
+      flex: 1
+    },
+    value: display,
+    onChange: e => applyChange(e.target.value, e.target.selectionStart)
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      border: `1px solid ${COLORS.line}`,
+      borderRadius: 8,
+      overflow: "hidden"
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => nudge(1),
+    style: {
+      flex: 1,
+      width: 28,
+      border: "none",
+      background: "#fff",
+      cursor: "pointer",
+      fontSize: 10,
+      color: COLORS.inkSoft,
+      borderBottom: `1px solid ${COLORS.line}`
+    }
+  }, "▲"), /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    onClick: () => nudge(-1),
+    style: {
+      flex: 1,
+      width: 28,
+      border: "none",
+      background: "#fff",
+      cursor: "pointer",
+      fontSize: 10,
+      color: COLORS.inkSoft
+    }
+  }, "▼")));
+}
+function Modal({
+  title,
+  onClose,
+  children,
+  displayFont,
+  wide
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "fixed",
+      inset: 0,
+      background: "rgba(27,36,48,0.45)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 50,
+      padding: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: "#fff",
+      borderRadius: 14,
+      padding: 24,
+      width: wide ? 520 : 420,
+      maxHeight: "88vh",
+      overflowY: "auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 18
+    }
+  }, /*#__PURE__*/React.createElement("h3", {
+    style: {
+      fontFamily: displayFont,
+      fontSize: 18,
+      fontWeight: 700,
+      margin: 0
+    }
+  }, title), /*#__PURE__*/React.createElement("button", {
+    onClick: onClose,
+    style: {
+      border: "none",
+      background: "transparent",
+      cursor: "pointer",
+      color: COLORS.inkSoft
+    }
+  }, /*#__PURE__*/React.createElement(X, {
+    size: 18
+  }))), children));
+}
+
+/* ============================================================
+   TREASURY (ACCOUNTS) PAGE
+   ============================================================ */
+function TreasuryPage({
+  ctx
+}) {
+  const {
+    t,
+    data,
+    ledger,
+    addAccount,
+    updateAccount,
+    deleteAccount,
+    displayFont
+  } = ctx;
+  const [modal, setModal] = useState(null); // null | 'new' | account
+  const [name, setName] = useState("");
+  const [type, setType] = useState("");
+  const [feeEnabled, setFeeEnabled] = useState(false);
+  const [err, setErr] = useState("");
+  const openNew = () => {
+    setModal("new");
+    setName("");
+    setType("");
+    setFeeEnabled(false);
+    setErr("");
+  };
+  const openEdit = a => {
+    setModal(a);
+    setName(a.name);
+    setType(a.type);
+    setFeeEnabled(a.feeEnabled);
+    setErr("");
+  };
+  const submit = () => {
+    if (!name.trim() || !type.trim()) {
+      setErr(t.needAmount);
+      return;
+    }
+    if (modal === "new") addAccount({
+      name: name.trim(),
+      type: type.trim(),
+      feeEnabled
+    });else updateAccount(modal.id, {
+      name: name.trim(),
+      type: type.trim(),
+      feeEnabled
+    });
+    setModal(null);
+  };
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PageHeader, {
+    title: t.treasury,
+    displayFont: displayFont,
+    action: /*#__PURE__*/React.createElement(Btn, {
+      onClick: openNew
+    }, /*#__PURE__*/React.createElement(Plus, {
+      size: 15
+    }), t.addAccount)
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: COLORS.paperCard,
+      border: `1px solid ${COLORS.line}`,
+      borderRadius: 12,
+      overflow: "hidden"
+    }
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      background: COLORS.paper
+    }
+  }, [t.accountName, t.accountType, t.feeEnabled, t.balance, t.actions].map(h => /*#__PURE__*/React.createElement("th", {
+    key: h,
+    style: {
+      textAlign: "start",
+      padding: "10px 14px",
+      fontSize: 12,
+      color: COLORS.inkSoft,
+      fontWeight: 600
+    }
+  }, h)))), /*#__PURE__*/React.createElement("tbody", null, data.accounts.map(a => /*#__PURE__*/React.createElement("tr", {
+    key: a.id,
+    style: {
+      borderTop: `1px solid ${COLORS.line}`
+    }
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: "12px 14px",
+      fontWeight: 600
+    }
+  }, a.name), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: "12px 14px",
+      color: COLORS.inkSoft
+    }
+  }, a.type), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: "12px 14px"
+    }
+  }, a.feeEnabled ? "✓" : "—"), /*#__PURE__*/React.createElement("td", {
+    className: "mono",
+    style: {
+      padding: "12px 14px",
+      fontWeight: 600
+    }
+  }, fmt(ledger.accountBal[a.id] || 0)), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: "12px 14px"
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    variant: "ghost",
+    small: true,
+    onClick: () => openEdit(a)
+  }, /*#__PURE__*/React.createElement(Pencil, {
+    size: 13
+  })), /*#__PURE__*/React.createElement(Btn, {
+    variant: "ghost",
+    small: true,
+    onClick: () => {
+      if (!deleteAccount(a.id)) alert(t.warnDeleteAccount);
+    }
+  }, /*#__PURE__*/React.createElement(Trash2, {
+    size: 13
+  }))))))), data.accounts.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
+    text: t.noAccounts
+  })), modal && /*#__PURE__*/React.createElement(Modal, {
+    title: modal === "new" ? t.addAccount : t.edit,
+    onClose: () => setModal(null),
+    displayFont: displayFont
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: t.accountName
+  }, /*#__PURE__*/React.createElement("input", {
+    style: inputStyle,
+    value: name,
+    onChange: e => setName(e.target.value)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: t.accountType
+  }, /*#__PURE__*/React.createElement("input", {
+    style: inputStyle,
+    value: type,
+    onChange: e => setType(e.target.value),
+    placeholder: "Cash / Visa / Vodafone Cash…"
+  })), /*#__PURE__*/React.createElement("label", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 8,
+      marginBottom: 18,
+      fontSize: 13.5
+    }
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "checkbox",
+    checked: feeEnabled,
+    onChange: e => setFeeEnabled(e.target.checked)
+  }), t.feeEnabled), err && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.rust,
+      fontSize: 12.5,
+      marginBottom: 10
+    }
+  }, err), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "flex-end"
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    variant: "outline",
+    onClick: () => setModal(null)
+  }, t.cancel), /*#__PURE__*/React.createElement(Btn, {
+    onClick: submit
+  }, t.save))));
+}
+
+/* ============================================================
+   PEOPLE PAGE
+   ============================================================ */
+function PeoplePage({
+  ctx
+}) {
+  const {
+    t,
+    data,
+    ledger,
+    addPerson,
+    toggleArchive,
+    renamePerson,
+    setStatementPerson,
+    displayFont
+  } = ctx;
+  const [modal, setModal] = useState(false);
+  const [name, setName] = useState("");
+  const [editing, setEditing] = useState(null);
+  const [showArchived, setShowArchived] = useState(false);
+  const submit = () => {
+    if (!name.trim()) return;
+    if (editing) renamePerson(editing.id, name.trim());else addPerson(name.trim());
+    setModal(false);
+    setEditing(null);
+    setName("");
+  };
+  const list = data.counterparties.filter(p => showArchived ? true : !p.archived);
+  const doArchive = p => {
+    const bal = ledger.cpBal[p.id] || 0;
+    if (!p.archived && Math.abs(bal) > 0.01) {
+      if (!window.confirm(t.warnArchive)) return;
+    }
+    toggleArchive(p.id, !p.archived);
+  };
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PageHeader, {
+    title: t.peopleTitle,
+    displayFont: displayFont,
+    action: /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      variant: "outline",
+      onClick: () => setShowArchived(s => !s)
+    }, showArchived ? t.active : t.archived), /*#__PURE__*/React.createElement(Btn, {
+      onClick: () => {
+        setEditing(null);
+        setName("");
+        setModal(true);
+      }
+    }, /*#__PURE__*/React.createElement(Plus, {
+      size: 15
+    }), t.addPerson))
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(230px, 1fr))",
+      gap: 12
+    }
+  }, list.map(p => {
+    const bal = ledger.cpBal[p.id] || 0;
+    const status = Math.abs(bal) < 0.01 ? t.settled : bal > 0 ? t.owedToThem : t.owesYou;
+    const color = Math.abs(bal) < 0.01 ? COLORS.inkSoft : bal > 0 ? COLORS.green : COLORS.rust;
+    return /*#__PURE__*/React.createElement("div", {
+      key: p.id,
+      style: {
+        background: COLORS.paperCard,
+        border: `1px solid ${COLORS.line}`,
+        borderRadius: 12,
+        padding: 16,
+        opacity: p.archived ? 0.6 : 1
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "flex-start"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700
+      }
+    }, p.name), p.archived && /*#__PURE__*/React.createElement(Archive, {
+      size: 14,
+      color: COLORS.inkSoft
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11.5,
+        color,
+        marginTop: 6
+      }
+    }, status), /*#__PURE__*/React.createElement("div", {
+      className: "mono",
+      style: {
+        fontSize: 20,
+        fontWeight: 600,
+        color,
+        margin: "4px 0 12px"
+      }
+    }, fmt(Math.abs(bal))), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 6,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      variant: "outline",
+      onClick: () => setStatementPerson(p)
+    }, t.statement), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      variant: "ghost",
+      onClick: () => {
+        setEditing(p);
+        setName(p.name);
+        setModal(true);
+      }
+    }, /*#__PURE__*/React.createElement(Pencil, {
+      size: 13
+    })), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      variant: "ghost",
+      onClick: () => doArchive(p)
+    }, p.archived ? /*#__PURE__*/React.createElement(ArchiveRestore, {
+      size: 13
+    }) : /*#__PURE__*/React.createElement(Archive, {
+      size: 13
+    }))));
+  }), list.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
+    text: t.noPeople
+  })), modal && /*#__PURE__*/React.createElement(Modal, {
+    title: editing ? t.edit : t.addPerson,
+    onClose: () => setModal(false),
+    displayFont: displayFont
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: t.personName
+  }, /*#__PURE__*/React.createElement("input", {
+    style: inputStyle,
+    value: name,
+    onChange: e => setName(e.target.value),
+    autoFocus: true
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "flex-end"
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    variant: "outline",
+    onClick: () => setModal(false)
+  }, t.cancel), /*#__PURE__*/React.createElement(Btn, {
+    onClick: submit
+  }, t.save))));
+}
+
+/* ============================================================
+   TRANSACTIONS PAGE
+   ============================================================ */
+const TX_TYPES = [{
+  key: "IN",
+  icon: ArrowDownCircle
+}, {
+  key: "OUT",
+  icon: ArrowUpCircle
+}, {
+  key: "TRANSFER",
+  icon: Repeat
+}, {
+  key: "P2P",
+  icon: Send
+}, {
+  key: "LOSS_ALLOC",
+  icon: Scale
+}];
+const TX_LABEL_KEY = {
+  IN: "moneyIn",
+  OUT: "moneyOut",
+  TRANSFER: "internalTransfer",
+  P2P: "balanceTransfer",
+  LOSS_ALLOC: "allocateLoss"
+};
+function TransactionsPage({
+  ctx
+}) {
+  const {
+    t,
+    data,
+    ledger,
+    addTransaction,
+    editTransaction,
+    deleteTransaction,
+    displayFont
+  } = ctx;
+  const [modal, setModal] = useState(null); // null | 'new' | tx
+  const [showAudit, setShowAudit] = useState(false);
+  const [fPerson, setFPerson] = useState("");
+  const [fType, setFType] = useState("");
+  const [fFrom, setFFrom] = useState("");
+  const [fTo, setFTo] = useState("");
+  const people = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
+  const accounts = Object.fromEntries(data.accounts.map(a => [a.id, a.name]));
+  const rows = useMemo(() => {
+    return [...data.transactions].filter(tr => !tr.deleted).filter(tr => !fType || tr.type === fType).filter(tr => !fPerson || tr.counterpartyId === fPerson || tr.toCounterpartyId === fPerson || tr.feeBearerCounterpartyId === fPerson).filter(tr => !fFrom || tr.txDate >= fFrom).filter(tr => !fTo || tr.txDate <= fTo).sort((a, b) => a.txDate < b.txDate ? 1 : a.txDate > b.txDate ? -1 : 0);
+  }, [data.transactions, fType, fPerson, fFrom, fTo]);
+  const describeRow = tr => {
+    switch (tr.type) {
+      case "IN":
+        return `${people[tr.counterpartyId] || "—"} → ${accounts[tr.accountId] || "—"}`;
+      case "OUT":
+        return `${accounts[tr.accountId] || "—"} → ${people[tr.counterpartyId] || "—"}`;
+      case "TRANSFER":
+        return `${accounts[tr.accountId] || "—"} → ${accounts[tr.toAccountId] || "—"}`;
+      case "P2P":
+        return `${people[tr.counterpartyId] || "—"} → ${people[tr.toCounterpartyId] || "—"}`;
+      case "LOSS_ALLOC":
+        return `${t.feePool} → ${people[tr.counterpartyId] || "—"}`;
+      default:
+        return "";
+    }
+  };
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PageHeader, {
+    title: t.txTitle,
+    displayFont: displayFont,
+    action: /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 8
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      variant: "outline",
+      onClick: () => setShowAudit(true)
+    }, /*#__PURE__*/React.createElement(History, {
+      size: 14
+    }), t.activity), /*#__PURE__*/React.createElement(Btn, {
+      onClick: () => setModal("new")
+    }, /*#__PURE__*/React.createElement(Plus, {
+      size: 15
+    }), t.addTx))
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 10,
+      marginBottom: 16,
+      flexWrap: "wrap",
+      alignItems: "flex-end"
+    }
+  }, /*#__PURE__*/React.createElement(FilterField, {
+    label: t.filterByPerson
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: fPerson,
+    onChange: e => setFPerson(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, t.all), data.counterparties.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.name)))), /*#__PURE__*/React.createElement(FilterField, {
+    label: t.filterByType
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: fType,
+    onChange: e => setFType(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, t.all), TX_TYPES.map(tt => /*#__PURE__*/React.createElement("option", {
+    key: tt.key,
+    value: tt.key
+  }, t[TX_LABEL_KEY[tt.key]])))), /*#__PURE__*/React.createElement(FilterField, {
+    label: t.filterFrom
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    style: inputStyle,
+    value: fFrom,
+    onChange: e => setFFrom(e.target.value)
+  })), /*#__PURE__*/React.createElement(FilterField, {
+    label: t.filterTo
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    style: inputStyle,
+    value: fTo,
+    onChange: e => setFTo(e.target.value)
+  })), (fPerson || fType || fFrom || fTo) && /*#__PURE__*/React.createElement(Btn, {
+    variant: "ghost",
+    small: true,
+    onClick: () => {
+      setFPerson("");
+      setFType("");
+      setFFrom("");
+      setFTo("");
+    }
+  }, /*#__PURE__*/React.createElement(Filter, {
+    size: 12
+  }), t.clearFilters)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: COLORS.paperCard,
+      border: `1px solid ${COLORS.line}`,
+      borderRadius: 12,
+      overflow: "hidden"
+    }
+  }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      background: COLORS.paper
+    }
+  }, [t.date, t.type, "", t.amount, t.fee, t.note, t.actions].map((h, i) => /*#__PURE__*/React.createElement("th", {
+    key: i,
+    style: {
+      textAlign: "start",
+      padding: "10px 14px",
+      fontSize: 12,
+      color: COLORS.inkSoft,
+      fontWeight: 600
+    }
+  }, h)))), /*#__PURE__*/React.createElement("tbody", null, rows.map(tr => {
+    const meta = TX_TYPES.find(x => x.key === tr.type);
+    const Icon = meta.icon;
+    return /*#__PURE__*/React.createElement("tr", {
+      key: tr.id,
+      style: {
+        borderTop: `1px solid ${COLORS.line}`
+      }
+    }, /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: "12px 14px",
+        fontSize: 13,
+        color: COLORS.inkSoft
+      }
+    }, tr.txDate), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: "12px 14px"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      style: {
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 6,
+        fontSize: 12.5,
+        fontWeight: 600
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      size: 14
+    }), " ", t[TX_LABEL_KEY[tr.type]])), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: "12px 14px",
+        fontSize: 13
+      }
+    }, describeRow(tr)), /*#__PURE__*/React.createElement("td", {
+      className: "mono",
+      style: {
+        padding: "12px 14px",
+        fontWeight: 600
+      }
+    }, fmt(tr.amount)), /*#__PURE__*/React.createElement("td", {
+      className: "mono",
+      style: {
+        padding: "12px 14px",
+        color: COLORS.inkSoft
+      }
+    }, tr.feeAmount ? fmt(tr.feeAmount) : "—"), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: "12px 14px",
+        fontSize: 12.5,
+        color: COLORS.inkSoft,
+        maxWidth: 160
+      }
+    }, tr.note || "—"), /*#__PURE__*/React.createElement("td", {
+      style: {
+        padding: "12px 14px"
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      variant: "ghost",
+      small: true,
+      onClick: () => setModal(tr)
+    }, /*#__PURE__*/React.createElement(Pencil, {
+      size: 13
+    })), /*#__PURE__*/React.createElement(Btn, {
+      variant: "ghost",
+      small: true,
+      onClick: () => {
+        if (window.confirm(t.confirmDelete)) deleteTransaction(tr.id);
+      }
+    }, /*#__PURE__*/React.createElement(Trash2, {
+      size: 13
+    }))));
+  }))), rows.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
+    text: t.noTx
+  })), modal && /*#__PURE__*/React.createElement(TransactionForm, {
+    ctx: ctx,
+    initial: modal === "new" ? null : modal,
+    onClose: () => setModal(null),
+    onSubmit: payload => {
+      if (modal === "new") addTransaction(payload);else editTransaction(modal.id, payload);
+      setModal(null);
+    }
+  }), showAudit && /*#__PURE__*/React.createElement(Modal, {
+    title: t.activity,
+    onClose: () => setShowAudit(false),
+    displayFont: displayFont,
+    wide: true
+  }, data.auditLog.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
+    text: t.noActivity
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      flexDirection: "column",
+      gap: 8
+    }
+  }, data.auditLog.slice(0, 100).map(a => /*#__PURE__*/React.createElement("div", {
+    key: a.id,
+    style: {
+      fontSize: 12.5,
+      borderBottom: `1px solid ${COLORS.line}`,
+      paddingBottom: 6
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: COLORS.inkSoft
+    }
+  }, new Date(a.ts).toLocaleString()), " — ", /*#__PURE__*/React.createElement("b", null, a.entityType), " ", t[a.action] || a.action, " ", /*#__PURE__*/React.createElement("span", {
+    className: "mono"
+  }, a.label))))));
+}
+function FilterField({
+  label,
+  children
+}) {
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minWidth: 140
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.inkSoft,
+      marginBottom: 4
+    }
+  }, label), children);
+}
+
+/* ============================================================
+   TRANSACTION FORM
+   ============================================================ */
+function TransactionForm({
+  ctx,
+  initial,
+  onClose,
+  onSubmit
+}) {
+  const {
+    t,
+    data,
+    ledger,
+    displayFont
+  } = ctx;
+  const [type, setType] = useState(initial?.type || "IN");
+  const [accountId, setAccountId] = useState(initial?.accountId || "");
+  const [toAccountId, setToAccountId] = useState(initial?.toAccountId || "");
+  const [counterpartyId, setCounterpartyId] = useState(initial?.counterpartyId || "");
+  const [toCounterpartyId, setToCounterpartyId] = useState(initial?.toCounterpartyId || "");
+  const [amount, setAmount] = useState(initial?.amount ?? "");
+  const [feeAmount, setFeeAmount] = useState(initial?.feeAmount ?? "");
+  const [feeBearerType, setFeeBearerType] = useState(initial?.feeBearerType || "loss");
+  const [feeBearerCounterpartyId, setFeeBearerCounterpartyId] = useState(initial?.feeBearerCounterpartyId || "");
+  const [note, setNote] = useState(initial?.note || "");
+  const [txDate, setTxDate] = useState(initial?.txDate || todayISO());
+  const [err, setErr] = useState("");
+  const activePeople = data.counterparties.filter(p => !p.archived);
+  const account = data.accounts.find(a => a.id === accountId);
+  const feeCapable = account?.feeEnabled && (type === "OUT" || type === "TRANSFER");
+  const p2pFeeCapable = type === "P2P";
+  const validate = () => {
+    const amt = Number(amount);
+    if (!amt || amt <= 0) return t.needAmount;
+    if (["IN", "OUT"].includes(type) && !accountId) return t.needAccount;
+    if (["IN", "OUT"].includes(type) && !counterpartyId) return t.needPerson;
+    if (type === "TRANSFER") {
+      if (!accountId) return t.needAccount;
+      if (!toAccountId) return t.needDestAccount;
+      if (accountId === toAccountId) return t.sameAccount;
+    }
+    if (type === "P2P") {
+      if (!counterpartyId) return t.needPerson;
+      if (!toCounterpartyId) return t.needDestPerson;
+      if (counterpartyId === toCounterpartyId) return t.samePerson;
+    }
+    if (type === "LOSS_ALLOC") {
+      if (!counterpartyId) return t.needPerson;
+      if (amt > ledger.loss + 0.01) return t.lossExceeds;
+    }
+    if (type === "OUT" && feeCapable && feeBearerType === "other" || type === "P2P" && feeBearerType === "other") {
+      if (!feeBearerCounterpartyId) return t.needPerson;
+    }
+    return "";
+  };
+  const submit = () => {
+    const e = validate();
+    if (e) {
+      setErr(e);
+      return;
+    }
+    const payload = {
+      type,
+      amount: Number(amount),
+      txDate,
+      note: note.trim(),
+      accountId: ["IN", "OUT", "TRANSFER"].includes(type) ? accountId : null,
+      toAccountId: type === "TRANSFER" ? toAccountId : null,
+      counterpartyId: ["IN", "OUT", "P2P", "LOSS_ALLOC"].includes(type) ? counterpartyId : null,
+      toCounterpartyId: type === "P2P" ? toCounterpartyId : null,
+      feeAmount: type === "OUT" && feeCapable || type === "TRANSFER" && account?.feeEnabled || type === "P2P" ? Number(feeAmount) || 0 : 0,
+      feeBearerType: type === "TRANSFER" ? "loss" : feeBearerType,
+      feeBearerCounterpartyId: feeBearerType === "other" ? feeBearerCounterpartyId : null
+    };
+    onSubmit(payload);
+  };
+  return /*#__PURE__*/React.createElement(Modal, {
+    title: initial ? t.edit : t.addTx,
+    onClose: onClose,
+    displayFont: displayFont,
+    wide: true
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: t.type
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 6,
+      flexWrap: "wrap"
+    }
+  }, TX_TYPES.map(tt => {
+    const Icon = tt.icon;
+    const active = type === tt.key;
+    return /*#__PURE__*/React.createElement("button", {
+      key: tt.key,
+      type: "button",
+      onClick: () => setType(tt.key),
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "7px 11px",
+        borderRadius: 8,
+        border: `1px solid ${active ? COLORS.ink : COLORS.line}`,
+        background: active ? COLORS.ink : "#fff",
+        color: active ? "#fff" : COLORS.ink,
+        fontSize: 12.5,
+        cursor: "pointer",
+        fontWeight: 600
+      }
+    }, /*#__PURE__*/React.createElement(Icon, {
+      size: 13
+    }), " ", t[TX_LABEL_KEY[tt.key]]);
+  }))), (type === "IN" || type === "OUT") && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
+    label: t.selectPerson
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: counterpartyId,
+    onChange: e => setCounterpartyId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "—"), activePeople.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.name)))), /*#__PURE__*/React.createElement(Field, {
+    label: t.selectAccount
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: accountId,
+    onChange: e => setAccountId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "—"), data.accounts.map(a => /*#__PURE__*/React.createElement("option", {
+    key: a.id,
+    value: a.id
+  }, a.name))))), type === "TRANSFER" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
+    label: t.from
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: accountId,
+    onChange: e => setAccountId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "—"), data.accounts.map(a => /*#__PURE__*/React.createElement("option", {
+    key: a.id,
+    value: a.id
+  }, a.name)))), /*#__PURE__*/React.createElement(Field, {
+    label: t.selectDestAccount
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: toAccountId,
+    onChange: e => setToAccountId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "—"), data.accounts.map(a => /*#__PURE__*/React.createElement("option", {
+    key: a.id,
+    value: a.id
+  }, a.name))))), type === "P2P" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
+    label: t.from
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: counterpartyId,
+    onChange: e => setCounterpartyId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "—"), activePeople.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.name)))), /*#__PURE__*/React.createElement(Field, {
+    label: t.selectDestPerson
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: toCounterpartyId,
+    onChange: e => setToCounterpartyId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "—"), activePeople.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.name))))), type === "LOSS_ALLOC" && /*#__PURE__*/React.createElement(Field, {
+    label: t.selectPerson
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: counterpartyId,
+    onChange: e => setCounterpartyId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "—"), activePeople.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.name))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.inkSoft,
+      marginTop: 4
+    }
+  }, t.feePool, ": ", /*#__PURE__*/React.createElement("span", {
+    className: "mono"
+  }, fmt(ledger.loss)))), /*#__PURE__*/React.createElement(Field, {
+    label: t.amount
+  }, /*#__PURE__*/React.createElement(AmountField, {
+    value: amount,
+    onChange: setAmount
+  })), (feeCapable || type === "P2P" || type === "TRANSFER" && account?.feeEnabled) && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Field, {
+    label: t.fee
+  }, /*#__PURE__*/React.createElement(AmountField, {
+    value: feeAmount,
+    onChange: setFeeAmount
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11,
+      color: COLORS.inkSoft,
+      marginTop: 3
+    }
+  }, t.feeOptional)), type !== "TRANSFER" && /*#__PURE__*/React.createElement(Field, {
+    label: t.feeBearer
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: feeBearerType,
+    onChange: e => setFeeBearerType(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "self"
+  }, t.self), type === "P2P" && /*#__PURE__*/React.createElement("option", {
+    value: "receiver"
+  }, t.receiver), type === "OUT" && /*#__PURE__*/React.createElement("option", {
+    value: "other"
+  }, t.other), /*#__PURE__*/React.createElement("option", {
+    value: "loss"
+  }, t.loss)), feeBearerType === "other" && /*#__PURE__*/React.createElement("select", {
+    style: {
+      ...inputStyle,
+      marginTop: 8
+    },
+    value: feeBearerCounterpartyId,
+    onChange: e => setFeeBearerCounterpartyId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, t.selectPerson), activePeople.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.name))))), /*#__PURE__*/React.createElement(Field, {
+    label: t.date
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    style: inputStyle,
+    value: txDate,
+    onChange: e => setTxDate(e.target.value),
+    max: todayISO()
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: t.note
+  }, /*#__PURE__*/React.createElement("textarea", {
+    style: {
+      ...inputStyle,
+      minHeight: 60
+    },
+    value: note,
+    onChange: e => setNote(e.target.value)
+  })), err && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.rust,
+      fontSize: 12.5,
+      marginBottom: 10
+    }
+  }, err), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "flex-end"
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    variant: "outline",
+    onClick: onClose
+  }, t.cancel), /*#__PURE__*/React.createElement(Btn, {
+    onClick: submit
+  }, t.save)));
+}
+
+/* ============================================================
+   STATEMENT VIEW (printable)
+   ============================================================ */
+function StatementView({
+  person,
+  onClose,
+  ctx
+}) {
+  const {
+    t,
+    data,
+    displayFont
+  } = ctx;
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const accounts = Object.fromEntries(data.accounts.map(a => [a.id, a.name]));
+  const people = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
+  const relevant = data.transactions.filter(tr => !tr.deleted).filter(tr => tr.counterpartyId === person.id || tr.toCounterpartyId === person.id || tr.feeBearerCounterpartyId === person.id).filter(tr => !from || tr.txDate >= from).filter(tr => !to || tr.txDate <= to).sort((a, b) => a.txDate < b.txDate ? -1 : 1);
+  let running = 0;
+  const rows = relevant.map(tr => {
+    let delta = 0;
+    let desc = "";
+    const fee = Number(tr.feeAmount) || 0;
+    if (tr.type === "IN" && tr.counterpartyId === person.id) {
+      delta = tr.amount;
+      desc = `${t.moneyIn} — ${accounts[tr.accountId]}`;
+    }
+    if (tr.type === "OUT" && tr.counterpartyId === person.id) {
+      delta = -tr.amount;
+      if (tr.feeBearerType === "self") delta -= fee;
+      desc = `${t.moneyOut} — ${accounts[tr.accountId]}`;
+    }
+    if (tr.type === "OUT" && tr.feeBearerCounterpartyId === person.id) {
+      delta = -fee;
+      desc = `${t.fee} (${people[tr.counterpartyId]})`;
+    }
+    if (tr.type === "P2P" && tr.counterpartyId === person.id) {
+      delta = -tr.amount;
+      if (tr.feeBearerType === "self") delta -= fee;
+      desc = `${t.balanceTransfer} → ${people[tr.toCounterpartyId]}`;
+    }
+    if (tr.type === "P2P" && tr.toCounterpartyId === person.id) {
+      delta = tr.feeBearerType === "receiver" ? tr.amount - fee : tr.amount;
+      desc = `${t.balanceTransfer} ← ${people[tr.counterpartyId]}`;
+    }
+    if (tr.type === "LOSS_ALLOC" && tr.counterpartyId === person.id) {
+      delta = -tr.amount;
+      desc = t.allocateLoss;
+    }
+    running += delta;
+    return {
+      ...tr,
+      delta,
+      desc,
+      running
+    };
+  });
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      minHeight: "100vh",
+      background: "#fff",
+      padding: "32px 40px",
+      maxWidth: 800,
+      margin: "0 auto"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "no-print",
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    variant: "outline",
+    onClick: onClose
+  }, t.close), /*#__PURE__*/React.createElement(Btn, {
+    onClick: () => window.print()
+  }, /*#__PURE__*/React.createElement(Printer, {
+    size: 14
+  }), t.printStatement)), /*#__PURE__*/React.createElement("div", {
+    className: "no-print",
+    style: {
+      display: "flex",
+      gap: 12,
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement(FilterField, {
+    label: t.filterFrom
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    style: inputStyle,
+    value: from,
+    onChange: e => setFrom(e.target.value)
+  })), /*#__PURE__*/React.createElement(FilterField, {
+    label: t.filterTo
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    style: inputStyle,
+    value: to,
+    onChange: e => setTo(e.target.value)
+  }))), /*#__PURE__*/React.createElement("h1", {
+    style: {
+      fontFamily: displayFont,
+      fontSize: 26,
+      marginBottom: 4
+    }
+  }, t.statementFor, " ", person.name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.inkSoft,
+      marginBottom: 24
+    }
+  }, t.period, ": ", from || "—", " → ", to || "—", " · ", t.generatedOn, " ", new Date().toLocaleDateString()), /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
+    style: {
+      borderBottom: `2px solid ${COLORS.ink}`
+    }
+  }, [t.date, t.note, t.amount, t.runningBalance].map(h => /*#__PURE__*/React.createElement("th", {
+    key: h,
+    style: {
+      textAlign: "start",
+      padding: "8px 6px",
+      fontSize: 12
+    }
+  }, h)))), /*#__PURE__*/React.createElement("tbody", null, rows.map(r => /*#__PURE__*/React.createElement("tr", {
+    key: r.id,
+    style: {
+      borderBottom: `1px solid ${COLORS.line}`
+    }
+  }, /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: "8px 6px",
+      fontSize: 12.5
+    }
+  }, r.txDate), /*#__PURE__*/React.createElement("td", {
+    style: {
+      padding: "8px 6px",
+      fontSize: 12.5
+    }
+  }, r.desc, r.note ? ` — ${r.note}` : ""), /*#__PURE__*/React.createElement("td", {
+    className: "mono",
+    style: {
+      padding: "8px 6px",
+      fontSize: 12.5,
+      color: r.delta >= 0 ? COLORS.green : COLORS.rust
+    }
+  }, r.delta >= 0 ? "+" : "", fmt(r.delta)), /*#__PURE__*/React.createElement("td", {
+    className: "mono",
+    style: {
+      padding: "8px 6px",
+      fontSize: 12.5,
+      fontWeight: 600
+    }
+  }, fmt(r.running)))))), rows.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
+    text: t.noStatementTx
+  }));
+}
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(/*#__PURE__*/React.createElement(App, null));
+</script>
+</body>
+</html>
