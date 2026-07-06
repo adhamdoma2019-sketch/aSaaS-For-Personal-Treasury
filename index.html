@@ -742,6 +742,13 @@ function App() {
           .app-lang-toggle { margin-top: 0 !important; border: none !important; padding: 6px 8px !important; flex-direction: column !important; font-size: 9.5px !important; gap: 3px !important; }
           .app-lang-label { font-size: 9.5px !important; }
           .app-main { padding: 16px 14px 92px 14px !important; max-width: 100% !important; }
+          .page-header { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+          .page-header h1 { font-size: 22px !important; }
+          .page-actions { width: 100% !important; display: flex !important; flex-wrap: wrap !important; gap: 8px !important; }
+          .page-actions > * { flex: 1 !important; min-width: 0 !important; }
+          .page-actions button { width: 100% !important; justify-content: center !important; white-space: nowrap !important; }
+          .table-scroll { overflow-x: auto !important; -webkit-overflow-scrolling: touch !important; }
+          .table-scroll table { min-width: 640px !important; }
         }
       `), statementPerson ? /*#__PURE__*/React.createElement(StatementView, {
     person: statementPerson,
@@ -1108,11 +1115,14 @@ function PageHeader({
   action
 }) {
   return /*#__PURE__*/React.createElement("div", {
+    className: "page-header",
     style: {
       display: "flex",
       alignItems: "center",
       justifyContent: "space-between",
-      marginBottom: 22
+      marginBottom: 22,
+      flexWrap: "wrap",
+      gap: 10
     }
   }, /*#__PURE__*/React.createElement("h1", {
     style: {
@@ -1121,7 +1131,9 @@ function PageHeader({
       fontWeight: 700,
       margin: 0
     }
-  }, title), action);
+  }, title), action && /*#__PURE__*/React.createElement("div", {
+    className: "page-actions"
+  }, action));
 }
 function SectionTitle({
   title,
@@ -1419,11 +1431,11 @@ function TreasuryPage({
       size: 15
     }), t.addAccount)
   }), /*#__PURE__*/React.createElement("div", {
+    className: "table-scroll",
     style: {
       background: COLORS.paperCard,
       border: `1px solid ${COLORS.line}`,
-      borderRadius: 12,
-      overflow: "hidden"
+      borderRadius: 12
     }
   }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
     style: {
@@ -1573,12 +1585,15 @@ function PeoplePage({
     action: /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
-        gap: 8
+        gap: 8,
+        flexWrap: "wrap"
       }
     }, /*#__PURE__*/React.createElement(Btn, {
       variant: "outline",
+      small: true,
       onClick: () => setShowArchived(s => !s)
     }, showArchived ? t.active : t.archived), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
       onClick: () => {
         setEditing(null);
         setName("");
@@ -1760,14 +1775,17 @@ function TransactionsPage({
     action: /*#__PURE__*/React.createElement("div", {
       style: {
         display: "flex",
-        gap: 8
+        gap: 8,
+        flexWrap: "wrap"
       }
     }, /*#__PURE__*/React.createElement(Btn, {
       variant: "outline",
+      small: true,
       onClick: () => setShowAudit(true)
     }, /*#__PURE__*/React.createElement(History, {
       size: 14
     }), t.activity), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
       onClick: () => setModal("new")
     }, /*#__PURE__*/React.createElement(Plus, {
       size: 15
@@ -1828,11 +1846,11 @@ function TransactionsPage({
   }, /*#__PURE__*/React.createElement(Filter, {
     size: 12
   }), t.clearFilters)), /*#__PURE__*/React.createElement("div", {
+    className: "table-scroll",
     style: {
       background: COLORS.paperCard,
       border: `1px solid ${COLORS.line}`,
-      borderRadius: 12,
-      overflow: "hidden"
+      borderRadius: 12
     }
   }, /*#__PURE__*/React.createElement("table", null, /*#__PURE__*/React.createElement("thead", null, /*#__PURE__*/React.createElement("tr", {
     style: {
