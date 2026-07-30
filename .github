@@ -1,0 +1,33 @@
+name: Daily Backup
+
+on:
+  schedule:
+    # Runs at 2:00 AM UTC every day. Adjust the hour if you want a
+    # different local time - GitHub schedules always use UTC.
+    - cron: '0 2 * * *'
+  workflow_dispatch: # lets you also trigger it manually from GitHub's website, for testing
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        working-directory: ./scripts
+        run: npm install
+
+      - name: Run daily backup
+        working-directory: .
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          GOOGLE_REFRESH_TOKEN: ${{ secrets.GOOGLE_REFRESH_TOKEN }}
+        run: node scripts/dailyBackup.js
