@@ -202,6 +202,7 @@ const T = {
     backup: "Backup",
     exportBackup: "Export backup",
     importBackup: "Restore from backup",
+    exportCsv: "Export CSV",
     backupHint: "Your data lives only in this browser. Export a backup file regularly and keep it somewhere safe (email, cloud drive) so you never lose it.",
     importConfirm: "This will replace all current data with the backup file. Continue?",
     importSuccess: "Backup restored successfully.",
@@ -307,6 +308,7 @@ const T = {
     backup: "نسخة احتياطية",
     exportBackup: "تصدير نسخة احتياطية",
     importBackup: "استعادة من نسخة احتياطية",
+    exportCsv: "تصدير CSV",
     backupHint: "بياناتك محفوظة فقط في هذا المتصفح. قم بتصدير نسخة احتياطية بانتظام واحفظها في مكان آمن (بريد إلكتروني، تخزين سحابي) حتى لا تفقدها أبدًا.",
     importConfirm: "سيؤدي هذا إلى استبدال جميع البيانات الحالية بملف النسخة الاحتياطية. متابعة؟",
     importSuccess: "تم استعادة النسخة الاحتياطية بنجاح.",
@@ -639,6 +641,85 @@ function App() {
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
   };
+  const exportCsv = () => {
+    const accounts = Object.fromEntries(data.accounts.map(a => [a.id, a.name]));
+    const people = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
+    const esc = v => {
+      const s = v === null || v === undefined ? "" : String(v);
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const row = arr => arr.map(esc).join(",");
+    const typeLabel = {
+      IN: "Money In",
+      OUT: "Money Out",
+      TRANSFER: "Internal Transfer",
+      P2P: "Balance Transfer",
+      LOSS_ALLOC: "Allocate Loss"
+    };
+    const lines = [];
+
+    // Section 1: Account balances (cash, bank, wallets — current snapshot)
+    lines.push(row(["ACCOUNTS (current balances)"]));
+    lines.push(row(["Account Name", "Type", "Has Fee", "Balance"]));
+    data.accounts.forEach(a => {
+      lines.push(row([a.name, a.type, a.feeEnabled ? "Yes" : "No", fmt(ledger.accountBal[a.id] || 0)]));
+    });
+    lines.push(row(["", "", "TOTAL", fmt(totalAccounts)]));
+    lines.push("");
+
+    // Section 2: Fee pool
+    lines.push(row(["FEE POOL (unassigned fees)"]));
+    lines.push(row(["Balance"]));
+    lines.push(row([fmt(ledger.loss)]));
+    lines.push("");
+
+    // Section 3: People balances (who you owe / who owes you — current snapshot)
+    lines.push(row(["PEOPLE (current balances)"]));
+    lines.push(row(["Name", "Status", "You Owe Them", "They Owe You"]));
+    data.counterparties.forEach(p => {
+      const bal = ledger.cpBal[p.id] || 0;
+      lines.push(row([p.name, p.archived ? "Archived" : "Active", bal > 0 ? fmt(bal) : "", bal < 0 ? fmt(Math.abs(bal)) : ""]));
+    });
+    lines.push(row(["", "TOTAL", "", fmt(totalCounterparties)]));
+    lines.push("");
+
+    // Section 4: Full transaction history
+    lines.push(row(["TRANSACTIONS (full history)"]));
+    lines.push(row(["Date", "Type", "From", "To", "Amount", "Fee Amount", "Fee Bearer", "Note", "Created At"]));
+    data.transactions.filter(tr => !tr.deleted).sort((a, b) => a.txDate < b.txDate ? -1 : a.txDate > b.txDate ? 1 : 0).forEach(tr => {
+      let from = "",
+        to = "";
+      if (tr.type === "IN") {
+        from = people[tr.counterpartyId] || "";
+        to = accounts[tr.accountId] || "";
+      } else if (tr.type === "OUT") {
+        from = accounts[tr.accountId] || "";
+        to = people[tr.counterpartyId] || "";
+      } else if (tr.type === "TRANSFER") {
+        from = accounts[tr.accountId] || "";
+        to = accounts[tr.toAccountId] || "";
+      } else if (tr.type === "P2P") {
+        from = people[tr.counterpartyId] || "";
+        to = people[tr.toCounterpartyId] || "";
+      } else if (tr.type === "LOSS_ALLOC") {
+        from = "Fee Pool";
+        to = people[tr.counterpartyId] || "";
+      }
+      lines.push(row([tr.txDate, typeLabel[tr.type] || tr.type, from, to, tr.amount, tr.feeAmount || "", tr.feeBearerType || "", tr.note || "", tr.createdAt || ""]));
+    });
+    const csv = lines.join("\n");
+    const blob = new Blob(["\uFEFF" + csv], {
+      type: "text/csv;charset=utf-8;"
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `treasury-full-export-${todayISO()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
   const importBackup = file => {
     const reader = new FileReader();
     reader.onload = e => {
@@ -913,7 +994,8 @@ function App() {
     deleteTransaction,
     setStatementPerson,
     exportBackup,
-    importBackup
+    importBackup,
+    exportCsv
   };
   return /*#__PURE__*/React.createElement("div", {
     dir: dir,
@@ -1115,7 +1197,8 @@ function Dashboard({
     reconciled,
     displayFont,
     exportBackup,
-    importBackup
+    importBackup,
+    exportCsv
   } = ctx;
   const fileInputRef = React.useRef(null);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PageHeader, {
@@ -1159,6 +1242,10 @@ function Dashboard({
     variant: "outline",
     onClick: exportBackup
   }, t.exportBackup), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    variant: "outline",
+    onClick: exportCsv
+  }, t.exportCsv), /*#__PURE__*/React.createElement(Btn, {
     small: true,
     variant: "outline",
     onClick: () => fileInputRef.current?.click()
