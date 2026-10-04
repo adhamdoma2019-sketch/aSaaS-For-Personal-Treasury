@@ -196,6 +196,9 @@ const T = {
     edited: "edited",
     deleted: "deleted",
     dashboardHint: "Accounts + Fee Pool should always equal what you owe everyone combined.",
+    loadErrorTitle: "Couldn't load your data",
+    loadErrorBody: "We couldn't reach your saved data just now. Nothing has been changed — tap retry once you have a connection.",
+    retry: "Retry",
     backup: "Backup",
     exportBackup: "Export backup",
     importBackup: "Restore from backup",
@@ -298,6 +301,9 @@ const T = {
     edited: "تم التعديل",
     deleted: "تم الحذف",
     dashboardHint: "يجب أن يساوي مجموع الحسابات + رصيد الرسوم دائمًا إجمالي ما تدين به للجميع.",
+    loadErrorTitle: "تعذّر تحميل بياناتك",
+    loadErrorBody: "لم نتمكن من الوصول إلى بياناتك المحفوظة الآن. لم يتم تغيير أي شيء — اضغط إعادة المحاولة بمجرد توفر الاتصال.",
+    retry: "إعادة المحاولة",
     backup: "نسخة احتياطية",
     exportBackup: "تصدير نسخة احتياطية",
     importBackup: "استعادة من نسخة احتياطية",
@@ -362,36 +368,152 @@ const emptyData = () => ({
   auditLog: [],
   lang: "en"
 });
-let _authReadyPromise = null;
-function ensureFirebaseAuth() {
-  if (_authReadyPromise) return _authReadyPromise;
-  _authReadyPromise = new Promise((resolve, reject) => {
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) resolve(user.uid);else firebase.auth().signInAnonymously().catch(reject);
-    }, reject);
-  });
-  return _authReadyPromise;
-}
+
+// Set by AuthGate once a real, permanent Firebase account is signed in.
+// Unlike anonymous auth, this uid is tied to the email/password account
+// itself, not to this device's browser storage — so clearing Safari data,
+// switching phones, or ITP storage limits can no longer orphan the data.
+let currentUid = null;
 async function loadData() {
-  try {
-    const uid = await ensureFirebaseAuth();
-    const snap = await firebase.firestore().collection("users").doc(uid).get();
-    if (snap.exists) return {
-      ...emptyData(),
-      ...snap.data()
-    };
-  } catch (e) {
-    console.error("Firestore load failed", e);
-  }
+  // IMPORTANT: no try/catch swallowing errors here. If anything fails
+  // (network, permissions), it must propagate to the caller so the app
+  // shows a retry screen instead of silently treating a failed read as
+  // "this user has no data yet" and later saving an empty document over
+  // real data.
+  const snap = await firebase.firestore().collection("users").doc(currentUid).get();
+  if (snap.exists) return {
+    ...emptyData(),
+    ...snap.data()
+  };
+  // snap.exists === false is the ONLY legitimate case for a fresh user:
+  // Firestore has definitively confirmed there is no document yet.
   return emptyData();
 }
 async function saveData(data) {
-  try {
-    const uid = await ensureFirebaseAuth();
-    await firebase.firestore().collection("users").doc(uid).set(data);
-  } catch (e) {
-    console.error("Firestore save failed", e);
+  await firebase.firestore().collection("users").doc(currentUid).set(data);
+}
+
+/* ============================================================
+   AUTH GATE — real email/password sign-in, replacing anonymous auth
+   ============================================================ */
+function AuthGate({
+  children
+}) {
+  const [authUser, setAuthUser] = React.useState(undefined); // undefined = checking, null = signed out
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [err, setErr] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  React.useEffect(() => {
+    return firebase.auth().onAuthStateChanged(u => {
+      currentUid = u ? u.uid : null;
+      setAuthUser(u);
+    });
+  }, []);
+  const submit = e => {
+    e.preventDefault();
+    setErr("");
+    setBusy(true);
+    firebase.auth().signInWithEmailAndPassword(email, password).catch(error => setErr(error.message)).finally(() => setBusy(false));
+  };
+  const shellStyle = {
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "#F6F4EE",
+    padding: 24,
+    fontFamily: "system-ui, sans-serif"
+  };
+  if (authUser === undefined) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: shellStyle
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: "#3A4452"
+      }
+    }, "Loading…"));
   }
+  if (!authUser) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: shellStyle
+    }, /*#__PURE__*/React.createElement("form", {
+      onSubmit: submit,
+      style: {
+        background: "#fff",
+        padding: 28,
+        borderRadius: 14,
+        width: 320,
+        maxWidth: "92vw",
+        border: "1px solid #E3DFD3"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 20,
+        marginBottom: 4,
+        color: "#1B2430"
+      }
+    }, "Treasury"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: "#3A4452",
+        marginBottom: 18
+      }
+    }, "Sign in to continue"), /*#__PURE__*/React.createElement("input", {
+      type: "email",
+      required: true,
+      autoCapitalize: "none",
+      placeholder: "Email",
+      value: email,
+      onChange: e => setEmail(e.target.value),
+      style: {
+        width: "100%",
+        padding: "10px 12px",
+        marginBottom: 10,
+        borderRadius: 8,
+        border: "1px solid #E3DFD3",
+        fontSize: 14,
+        boxSizing: "border-box"
+      }
+    }), /*#__PURE__*/React.createElement("input", {
+      type: "password",
+      required: true,
+      placeholder: "Password",
+      value: password,
+      onChange: e => setPassword(e.target.value),
+      style: {
+        width: "100%",
+        padding: "10px 12px",
+        marginBottom: 14,
+        borderRadius: 8,
+        border: "1px solid #E3DFD3",
+        fontSize: 14,
+        boxSizing: "border-box"
+      }
+    }), err && /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: "#B5533C",
+        fontSize: 12.5,
+        marginBottom: 10
+      }
+    }, err), /*#__PURE__*/React.createElement("button", {
+      type: "submit",
+      disabled: busy,
+      style: {
+        width: "100%",
+        padding: "11px",
+        borderRadius: 8,
+        border: "none",
+        background: "#1B2430",
+        color: "#fff",
+        fontWeight: 600,
+        fontSize: 14,
+        cursor: "pointer"
+      }
+    }, busy ? "…" : "Sign in")));
+  }
+  return children;
 }
 
 /* ============================================================
@@ -460,18 +582,37 @@ function computeLedger(transactions) {
 function App() {
   useFonts();
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [data, setData] = useState(emptyData());
   const [page, setPage] = useState("dashboard");
   const [statementPerson, setStatementPerson] = useState(null);
-  useEffect(() => {
+  const runLoad = useCallback(() => {
+    setLoading(true);
+    setLoadError(null);
     loadData().then(d => {
       setData(d);
+      setHasLoaded(true);
       setLoading(false);
+    }).catch(e => {
+      console.error("Load failed", e);
+      setLoadError(e);
+      setLoading(false);
+      // hasLoaded stays false here on purpose: this is what prevents the
+      // save effect below from ever firing with empty/default data after
+      // a failed read, which is exactly what caused real data to be wiped.
     });
   }, []);
   useEffect(() => {
-    if (!loading) saveData(data);
-  }, [data, loading]);
+    runLoad();
+  }, [runLoad]);
+  useEffect(() => {
+    // Only ever write to storage after we've confirmed a real successful
+    // load. This is the critical safety rule: a failed read must never be
+    // able to result in a write, since that write could overwrite real data
+    // with an empty default.
+    if (hasLoaded && !loadError) saveData(data).catch(e => console.error("Save failed", e));
+  }, [data, hasLoaded, loadError]);
   const lang = data.lang || "en";
   const t = T[lang];
   const dir = lang === "ar" ? "rtl" : "ltr";
@@ -708,6 +849,47 @@ function App() {
         color: COLORS.inkSoft
       }
     }, "Loading…"));
+  }
+  if (loadError) {
+    return /*#__PURE__*/React.createElement("div", {
+      style: {
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: COLORS.paper,
+        padding: 24
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        maxWidth: 360,
+        textAlign: "center",
+        fontFamily: bodyFont
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        marginBottom: 10
+      }
+    }, /*#__PURE__*/React.createElement(AlertTriangle, {
+      size: 32,
+      color: COLORS.rust
+    })), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontFamily: displayFont,
+        fontWeight: 700,
+        fontSize: 18,
+        marginBottom: 8,
+        color: COLORS.ink
+      }
+    }, t.loadErrorTitle), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 13.5,
+        color: COLORS.inkSoft,
+        marginBottom: 18
+      }
+    }, t.loadErrorBody), /*#__PURE__*/React.createElement(Btn, {
+      onClick: runLoad
+    }, t.retry)));
   }
   const ctx = {
     t,
@@ -1277,7 +1459,8 @@ function AmountField({
   const applyChange = (rawInputValue, cursorPos) => {
     const digitsBeforeCursor = rawInputValue.slice(0, cursorPos).replace(/[^\d]/g, "").length;
     const formatted = formatAmountText(rawInputValue);
-    onChange(parseAmountText(formatted) === "" ? "" : String(parseAmountText(formatted)));
+    const rawValue = formatted.replace(/,/g, ""); // keep trailing "." / partial decimals while typing
+    onChange(rawValue);
     requestAnimationFrame(() => {
       if (!inputRef.current) return;
       let seen = 0,
@@ -2456,7 +2639,7 @@ function StatementView({
   }));
 }
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(/*#__PURE__*/React.createElement(App, null));
+root.render(/*#__PURE__*/React.createElement(AuthGate, null, /*#__PURE__*/React.createElement(App, null)));
 </script>
 </body>
 </html>
