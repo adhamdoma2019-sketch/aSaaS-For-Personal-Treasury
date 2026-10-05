@@ -215,6 +215,7 @@ const T = {
     driveSaving: "Saving…",
     driveSaved: "Saved to Drive ✓",
     driveError: "Couldn't save — tap to retry",
+    lastDriveSync: "Last auto-sync to Drive",
     backupHint: "Your data lives only in this browser. Export a backup file regularly and keep it somewhere safe (email, cloud drive) so you never lose it.",
     importConfirm: "This will replace all current data with the backup file. Continue?",
     importSuccess: "Backup restored successfully.",
@@ -331,6 +332,7 @@ const T = {
     driveSaving: "جارٍ الحفظ…",
     driveSaved: "تم الحفظ في Drive ✓",
     driveError: "فشل الحفظ — اضغط للمحاولة تاني",
+    lastDriveSync: "آخر مزامنة تلقائية مع Drive",
     backupHint: "بياناتك محفوظة فقط في هذا المتصفح. قم بتصدير نسخة احتياطية بانتظام واحفظها في مكان آمن (بريد إلكتروني، تخزين سحابي) حتى لا تفقدها أبدًا.",
     importConfirm: "سيؤدي هذا إلى استبدال جميع البيانات الحالية بملف النسخة الاحتياطية. متابعة؟",
     importSuccess: "تم استعادة النسخة الاحتياطية بنجاح.",
@@ -422,7 +424,7 @@ const DRIVE_CLIENT_ID = "776038108579-jrasnvnfpd2mbrl9hmm5f1qggg79kj2u.apps.goog
 const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
 let driveTokenClient = null;
 let driveAccessToken = null;
-function getDriveToken() {
+function getDriveToken(silent) {
   return new Promise((resolve, reject) => {
     if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
       reject(new Error("Google sign-in isn't available here."));
@@ -443,13 +445,15 @@ function getDriveToken() {
       driveAccessToken = resp.access_token;
       resolve(resp.access_token);
     };
+    // silent=true (used for the automatic daily sync) never shows a consent
+    // popup — if there's no valid session already, it just fails quietly.
     driveTokenClient.requestAccessToken({
-      prompt: driveAccessToken ? "" : "consent"
+      prompt: silent ? "" : driveAccessToken ? "" : "consent"
     });
   });
 }
-async function uploadCsvToDrive(filename, csvText) {
-  const token = await getDriveToken();
+async function uploadCsvToDrive(filename, csvText, silent) {
+  const token = await getDriveToken(silent);
   const boundary = "-------314159265358979323846";
   const delimiter = `\r\n--${boundary}\r\n`;
   const closeDelim = `\r\n--${boundary}--`;
@@ -506,7 +510,8 @@ const emptyData = () => ({
   transactions: [],
   auditLog: [],
   lang: "en",
-  lastBackupAt: null
+  lastBackupAt: null,
+  lastDriveSyncAt: null
 });
 const BACKUP_REMINDER_DAYS = 7;
 
@@ -830,31 +835,50 @@ function App() {
     }, 300);
     return () => clearInterval(id);
   }, []);
-  const saveCsvToDrive = async () => {
+  const saveCsvToDrive = async (silent = false) => {
     if (!driveReady) {
-      alert("Google sign-in is still loading — wait a second and try again.");
+      if (!silent) alert("Google sign-in is still loading — wait a second and try again.");
       return;
     }
-    setDriveStatus("working");
+    if (!silent) setDriveStatus("working");
     try {
       const csv = buildCsvContent(data, ledger, totalAccounts, totalCounterparties);
-      await uploadCsvToDrive(`treasury-full-export-${todayISO()}.csv`, csv);
+      await uploadCsvToDrive(`treasury-full-export-${todayISO()}.csv`, csv, silent);
       setData(d => ({
         ...d,
-        lastBackupAt: new Date().toISOString()
+        lastBackupAt: new Date().toISOString(),
+        lastDriveSyncAt: new Date().toISOString()
       }));
-      setDriveStatus("done");
-      setTimeout(() => setDriveStatus("idle"), 3000);
+      if (!silent) {
+        setDriveStatus("done");
+        setTimeout(() => setDriveStatus("idle"), 3000);
+      }
     } catch (e) {
       console.error("Drive upload failed", e);
-      // Surface the real error on-screen (not just console) since iPhone
-      // Safari doesn't give easy devtools access — this is what to screenshot.
-      const msg = e && (e.message || e.error_description || e.error) || String(e);
-      alert("Drive save failed:\n\n" + msg);
-      setDriveStatus("error");
-      setTimeout(() => setDriveStatus("idle"), 4000);
+      // A silent (automatic) attempt fails quietly — no popup interrupting
+      // the person just for opening the app. It'll simply retry next time.
+      if (!silent) {
+        const msg = e && (e.message || e.error_description || e.error) || String(e);
+        alert("Drive save failed:\n\n" + msg);
+        setDriveStatus("error");
+        setTimeout(() => setDriveStatus("idle"), 4000);
+      }
     }
   };
+  useEffect(() => {
+    // Automatic daily Drive sync: runs once per app open (not on every
+    // edit), and only once driveReady is confirmed. This is a best-effort
+    // background sync, not a true server-side cron job — it only happens
+    // when the app is actually opened, since a static site with no backend
+    // has no way to run while the app is fully closed.
+    if (!hasLoaded || loadError || !driveReady) return;
+    const hasAnyData = data.accounts.length > 0 || data.counterparties.length > 0 || data.transactions.length > 0;
+    if (!hasAnyData) return;
+    const last = data.lastDriveSyncAt ? new Date(data.lastDriveSyncAt).getTime() : null;
+    const daysSince = last ? (Date.now() - last) / 86400000 : Infinity;
+    if (daysSince >= 1) saveCsvToDrive(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasLoaded, loadError, driveReady]);
   const importBackup = file => {
     const reader = new FileReader();
     reader.onload = e => {
@@ -1403,7 +1427,14 @@ function Dashboard({
       fontWeight: 600,
       color: data.lastBackupAt ? COLORS.green : COLORS.rust
     }
-  }, t.lastBackup, ": ", data.lastBackupAt ? new Date(data.lastBackupAt).toLocaleDateString() : t.never)), /*#__PURE__*/React.createElement("div", {
+  }, t.lastBackup, ": ", data.lastBackupAt ? new Date(data.lastBackupAt).toLocaleDateString() : t.never), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      marginTop: 2,
+      fontWeight: 600,
+      color: data.lastDriveSyncAt ? COLORS.green : COLORS.inkSoft
+    }
+  }, t.lastDriveSync, ": ", data.lastDriveSyncAt ? new Date(data.lastDriveSyncAt).toLocaleString() : t.never)), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8
@@ -1419,7 +1450,7 @@ function Dashboard({
   }, t.exportCsv), /*#__PURE__*/React.createElement(Btn, {
     small: true,
     variant: "outline",
-    onClick: saveCsvToDrive
+    onClick: () => saveCsvToDrive(false)
   }, driveStatus === "working" ? t.driveSaving : driveStatus === "done" ? t.driveSaved : driveStatus === "error" ? t.driveError : t.saveToDrive), /*#__PURE__*/React.createElement(Btn, {
     small: true,
     variant: "outline",
