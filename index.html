@@ -815,7 +815,26 @@ function App() {
     }));
   };
   const [driveStatus, setDriveStatus] = useState("idle"); // idle | working | done | error
+  const [driveReady, setDriveReady] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+        setDriveReady(true);
+        return true;
+      }
+      return false;
+    };
+    if (check()) return;
+    const id = setInterval(() => {
+      if (check()) clearInterval(id);
+    }, 300);
+    return () => clearInterval(id);
+  }, []);
   const saveCsvToDrive = async () => {
+    if (!driveReady) {
+      alert("Google sign-in is still loading — wait a second and try again.");
+      return;
+    }
     setDriveStatus("working");
     try {
       const csv = buildCsvContent(data, ledger, totalAccounts, totalCounterparties);
@@ -828,6 +847,10 @@ function App() {
       setTimeout(() => setDriveStatus("idle"), 3000);
     } catch (e) {
       console.error("Drive upload failed", e);
+      // Surface the real error on-screen (not just console) since iPhone
+      // Safari doesn't give easy devtools access — this is what to screenshot.
+      const msg = e && (e.message || e.error_description || e.error) || String(e);
+      alert("Drive save failed:\n\n" + msg);
       setDriveStatus("error");
       setTimeout(() => setDriveStatus("idle"), 4000);
     }
@@ -1109,7 +1132,8 @@ function App() {
     importBackup,
     exportCsv,
     saveCsvToDrive,
-    driveStatus
+    driveStatus,
+    driveReady
   };
   return /*#__PURE__*/React.createElement("div", {
     dir: dir,
