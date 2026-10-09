@@ -1181,7 +1181,7 @@ function App() {
         * { box-sizing: border-box; }
         input, select, textarea, button { font-family: inherit; }
         table { border-collapse: collapse; width: 100%; }
-        .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; }
+        .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-thumb { background: ${COLORS.line}; border-radius: 4px; }
         @media print {
@@ -1801,10 +1801,12 @@ function AmountField({
     ref: inputRef,
     type: "text",
     inputMode: "decimal",
+    dir: "ltr",
     className: "mono",
     style: {
       ...inputStyle,
-      flex: 1
+      flex: 1,
+      textAlign: "left"
     },
     value: display,
     onChange: e => applyChange(e.target.value, e.target.selectionStart)
