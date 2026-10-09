@@ -216,6 +216,7 @@ const T = {
     driveSaved: "Saved to Drive ✓",
     driveError: "Couldn't save — tap to retry",
     lastDriveSync: "Last auto-sync to Drive",
+    driveAutoSyncFailedMsg: "⚠ Auto-sync has been failing silently — tap \"Save to Google Drive\" once to reconnect.",
     backupHint: "Your data lives only in this browser. Export a backup file regularly and keep it somewhere safe (email, cloud drive) so you never lose it.",
     importConfirm: "This will replace all current data with the backup file. Continue?",
     importSuccess: "Backup restored successfully.",
@@ -333,6 +334,7 @@ const T = {
     driveSaved: "تم الحفظ في Drive ✓",
     driveError: "فشل الحفظ — اضغط للمحاولة تاني",
     lastDriveSync: "آخر مزامنة تلقائية مع Drive",
+    driveAutoSyncFailedMsg: "⚠ المزامنة التلقائية بتفشل بصمت — دوس \"حفظ في Google Drive\" مرة واحدة يدويًا عشان تعيد الاتصال.",
     backupHint: "بياناتك محفوظة فقط في هذا المتصفح. قم بتصدير نسخة احتياطية بانتظام واحفظها في مكان آمن (بريد إلكتروني، تخزين سحابي) حتى لا تفقدها أبدًا.",
     importConfirm: "سيؤدي هذا إلى استبدال جميع البيانات الحالية بملف النسخة الاحتياطية. متابعة؟",
     importSuccess: "تم استعادة النسخة الاحتياطية بنجاح.",
@@ -820,6 +822,7 @@ function App() {
     }));
   };
   const [driveStatus, setDriveStatus] = useState("idle"); // idle | working | done | error
+  const [driveAutoSyncFailed, setDriveAutoSyncFailed] = useState(false);
   const [driveReady, setDriveReady] = useState(false);
   useEffect(() => {
     const check = () => {
@@ -849,15 +852,21 @@ function App() {
         lastBackupAt: new Date().toISOString(),
         lastDriveSyncAt: new Date().toISOString()
       }));
+      setDriveAutoSyncFailed(false);
       if (!silent) {
         setDriveStatus("done");
         setTimeout(() => setDriveStatus("idle"), 3000);
       }
     } catch (e) {
       console.error("Drive upload failed", e);
-      // A silent (automatic) attempt fails quietly — no popup interrupting
-      // the person just for opening the app. It'll simply retry next time.
-      if (!silent) {
+      // A silent (automatic) attempt never shows a popup — but it must NOT
+      // fail invisibly forever either. We surface it as a quiet on-screen
+      // flag instead, so the person can notice and fix it with one tap,
+      // rather than silently missing days of backups with no sign anything
+      // was wrong.
+      if (silent) {
+        setDriveAutoSyncFailed(true);
+      } else {
         const msg = e && (e.message || e.error_description || e.error) || String(e);
         alert("Drive save failed:\n\n" + msg);
         setDriveStatus("error");
@@ -1157,7 +1166,8 @@ function App() {
     exportCsv,
     saveCsvToDrive,
     driveStatus,
-    driveReady
+    driveReady,
+    driveAutoSyncFailed
   };
   return /*#__PURE__*/React.createElement("div", {
     dir: dir,
@@ -1386,7 +1396,8 @@ function Dashboard({
     importBackup,
     exportCsv,
     saveCsvToDrive,
-    driveStatus
+    driveStatus,
+    driveAutoSyncFailed
   } = ctx;
   const fileInputRef = React.useRef(null);
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PageHeader, {
@@ -1434,7 +1445,14 @@ function Dashboard({
       fontWeight: 600,
       color: data.lastDriveSyncAt ? COLORS.green : COLORS.inkSoft
     }
-  }, t.lastDriveSync, ": ", data.lastDriveSyncAt ? new Date(data.lastDriveSyncAt).toLocaleString() : t.never)), /*#__PURE__*/React.createElement("div", {
+  }, t.lastDriveSync, ": ", data.lastDriveSyncAt ? new Date(data.lastDriveSyncAt).toLocaleString() : t.never), driveAutoSyncFailed && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      marginTop: 4,
+      fontWeight: 600,
+      color: COLORS.rust
+    }
+  }, t.driveAutoSyncFailedMsg)), /*#__PURE__*/React.createElement("div", {
     style: {
       display: "flex",
       gap: 8
