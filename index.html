@@ -1799,14 +1799,19 @@ function AmountField({
     }
   }, /*#__PURE__*/React.createElement("input", {
     ref: inputRef,
-    type: "text",
+    type: "tel",
     inputMode: "decimal",
     dir: "ltr",
+    lang: "en",
+    autoCorrect: "off",
+    autoCapitalize: "off",
     className: "mono",
     style: {
       ...inputStyle,
       flex: 1,
-      textAlign: "left"
+      textAlign: "left",
+      direction: "ltr",
+      unicodeBidi: "plaintext"
     },
     value: display,
     onChange: e => applyChange(e.target.value, e.target.selectionStart)
