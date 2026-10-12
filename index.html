@@ -1768,7 +1768,11 @@ function AmountField({
   const inputRef = React.useRef(null);
   const display = formatAmountText(value === undefined || value === null ? "" : String(value));
   const applyChange = (rawInputValue, cursorPos) => {
-    const digitsBeforeCursor = rawInputValue.slice(0, cursorPos).replace(/[^\d]/g, "").length;
+    // Count digits AND the decimal point itself (commas are purely cosmetic
+    // and excluded on both sides). Counting digits only previously lost
+    // track of where the "." sat relative to the cursor, which could place
+    // the next typed digit before the dot instead of after it.
+    const unitsBeforeCursor = rawInputValue.slice(0, cursorPos).replace(/[^\d.]/g, "").length;
     const formatted = formatAmountText(rawInputValue);
     const rawValue = formatted.replace(/,/g, ""); // keep trailing "." / partial decimals while typing
     onChange(rawValue);
@@ -1777,8 +1781,8 @@ function AmountField({
       let seen = 0,
         pos = 0;
       for (; pos < formatted.length; pos++) {
-        if (/\d/.test(formatted[pos])) seen++;
-        if (seen >= digitsBeforeCursor) {
+        if (/[\d.]/.test(formatted[pos])) seen++;
+        if (seen >= unitsBeforeCursor) {
           pos++;
           break;
         }
