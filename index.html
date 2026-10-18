@@ -544,26 +544,54 @@ async function saveData(data) {
 /* ============================================================
    AUTH GATE — real email/password sign-in, replacing anonymous auth
    ============================================================ */
-function AuthGate({
-  children
-}) {
+function AuthGate({ children }) {
   const [authUser, setAuthUser] = React.useState(undefined); // undefined = checking, null = signed out
+  const [mode, setMode] = React.useState("signin"); // "signin" | "signup"
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
+  const [confirmPassword, setConfirmPassword] = React.useState("");
   const [err, setErr] = React.useState("");
   const [busy, setBusy] = React.useState(false);
+
   React.useEffect(() => {
     return firebase.auth().onAuthStateChanged(u => {
       currentUid = u ? u.uid : null;
       setAuthUser(u);
     });
   }, []);
+
   const submit = e => {
     e.preventDefault();
     setErr("");
+
+    // Validate sign-up specific fields
+    if (mode === "signup") {
+      if (password.length < 6) {
+        setErr("Password must be at least 6 characters");
+        return;
+      }
+      if (password !== confirmPassword) {
+        setErr("Passwords don't match");
+        return;
+      }
+    }
+
     setBusy(true);
-    firebase.auth().signInWithEmailAndPassword(email, password).catch(error => setErr(error.message)).finally(() => setBusy(false));
+    const authAction = mode === "signup"
+      ? firebase.auth().createUserWithEmailAndPassword(email, password)
+      : firebase.auth().signInWithEmailAndPassword(email, password);
+
+    authAction
+      .catch(error => setErr(error.message))
+      .finally(() => setBusy(false));
   };
+
+  const switchMode = () => {
+    setMode(m => (m === "signin" ? "signup" : "signin"));
+    setErr("");
+    setConfirmPassword("");
+  };
+
   const shellStyle = {
     minHeight: "100vh",
     display: "flex",
@@ -573,94 +601,129 @@ function AuthGate({
     padding: 24,
     fontFamily: "system-ui, sans-serif"
   };
+
   if (authUser === undefined) {
-    return /*#__PURE__*/React.createElement("div", {
-      style: shellStyle
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: "#3A4452"
-      }
-    }, "Loading…"));
+    return /*#__PURE__*/React.createElement("div", { style: shellStyle },
+      /*#__PURE__*/React.createElement("div", { style: { color: "#3A4452" } }, "Loading…")
+    );
   }
+
   if (!authUser) {
-    return /*#__PURE__*/React.createElement("div", {
-      style: shellStyle
-    }, /*#__PURE__*/React.createElement("form", {
-      onSubmit: submit,
-      style: {
-        background: "#fff",
-        padding: 28,
-        borderRadius: 14,
-        width: 320,
-        maxWidth: "92vw",
-        border: "1px solid #E3DFD3"
-      }
-    }, /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontWeight: 700,
-        fontSize: 20,
-        marginBottom: 4,
-        color: "#1B2430"
-      }
-    }, "Treasury"), /*#__PURE__*/React.createElement("div", {
-      style: {
-        fontSize: 12.5,
-        color: "#3A4452",
-        marginBottom: 18
-      }
-    }, "Sign in to continue"), /*#__PURE__*/React.createElement("input", {
-      type: "email",
-      required: true,
-      autoCapitalize: "none",
-      placeholder: "Email",
-      value: email,
-      onChange: e => setEmail(e.target.value),
-      style: {
-        width: "100%",
-        padding: "10px 12px",
-        marginBottom: 10,
-        borderRadius: 8,
-        border: "1px solid #E3DFD3",
-        fontSize: 14,
-        boxSizing: "border-box"
-      }
-    }), /*#__PURE__*/React.createElement("input", {
-      type: "password",
-      required: true,
-      placeholder: "Password",
-      value: password,
-      onChange: e => setPassword(e.target.value),
-      style: {
-        width: "100%",
-        padding: "10px 12px",
-        marginBottom: 14,
-        borderRadius: 8,
-        border: "1px solid #E3DFD3",
-        fontSize: 14,
-        boxSizing: "border-box"
-      }
-    }), err && /*#__PURE__*/React.createElement("div", {
-      style: {
-        color: "#B5533C",
-        fontSize: 12.5,
-        marginBottom: 10
-      }
-    }, err), /*#__PURE__*/React.createElement("button", {
-      type: "submit",
-      disabled: busy,
-      style: {
-        width: "100%",
-        padding: "11px",
-        borderRadius: 8,
-        border: "none",
-        background: "#1B2430",
-        color: "#fff",
-        fontWeight: 600,
-        fontSize: 14,
-        cursor: "pointer"
-      }
-    }, busy ? "…" : "Sign in")));
+    const isSignup = mode === "signup";
+    return /*#__PURE__*/React.createElement("div", { style: shellStyle },
+      /*#__PURE__*/React.createElement("form", {
+        onSubmit: submit,
+        style: {
+          background: "#fff",
+          padding: 28,
+          borderRadius: 14,
+          width: 320,
+          maxWidth: "92vw",
+          border: "1px solid #E3DFD3"
+        }
+      },
+        /*#__PURE__*/React.createElement("div", {
+          style: { fontWeight: 700, fontSize: 20, marginBottom: 4, color: "#1B2430" }
+        }, "Treasury"),
+        /*#__PURE__*/React.createElement("div", {
+          style: { fontSize: 12.5, color: "#3A4452", marginBottom: 18 }
+        }, isSignup ? "Create your account" : "Sign in to continue"),
+
+        /*#__PURE__*/React.createElement("input", {
+          type: "email",
+          required: true,
+          autoCapitalize: "none",
+          placeholder: "Email",
+          value: email,
+          onChange: e => setEmail(e.target.value),
+          style: {
+            width: "100%",
+            padding: "10px 12px",
+            marginBottom: 10,
+            borderRadius: 8,
+            border: "1px solid #E3DFD3",
+            fontSize: 14,
+            boxSizing: "border-box"
+          }
+        }),
+
+        /*#__PURE__*/React.createElement("input", {
+          type: "password",
+          required: true,
+          placeholder: "Password (min 6 characters)",
+          value: password,
+          onChange: e => setPassword(e.target.value),
+          style: {
+            width: "100%",
+            padding: "10px 12px",
+            marginBottom: isSignup ? 10 : 14,
+            borderRadius: 8,
+            border: "1px solid #E3DFD3",
+            fontSize: 14,
+            boxSizing: "border-box"
+          }
+        }),
+
+        isSignup && /*#__PURE__*/React.createElement("input", {
+          type: "password",
+          required: true,
+          placeholder: "Confirm password",
+          value: confirmPassword,
+          onChange: e => setConfirmPassword(e.target.value),
+          style: {
+            width: "100%",
+            padding: "10px 12px",
+            marginBottom: 14,
+            borderRadius: 8,
+            border: "1px solid #E3DFD3",
+            fontSize: 14,
+            boxSizing: "border-box"
+          }
+        }),
+
+        err && /*#__PURE__*/React.createElement("div", {
+          style: { color: "#B5533C", fontSize: 12.5, marginBottom: 10 }
+        }, err),
+
+        /*#__PURE__*/React.createElement("button", {
+          type: "submit",
+          disabled: busy,
+          style: {
+            width: "100%",
+            padding: "11px",
+            borderRadius: 8,
+            border: "none",
+            background: "#1B2430",
+            color: "#fff",
+            fontWeight: 600,
+            fontSize: 14,
+            cursor: "pointer",
+            marginBottom: 12
+          }
+        }, busy ? "…" : isSignup ? "Create account" : "Sign in"),
+
+        /*#__PURE__*/React.createElement("div", {
+          style: { textAlign: "center", fontSize: 13, color: "#3A4452" }
+        },
+          isSignup ? "Already have an account? " : "Don't have an account? ",
+          /*#__PURE__*/React.createElement("button", {
+            type: "button",
+            onClick: switchMode,
+            style: {
+              background: "none",
+              border: "none",
+              color: "#2F6F5E",
+              fontWeight: 600,
+              cursor: "pointer",
+              fontSize: 13,
+              padding: 0
+            }
+          }, isSignup ? "Sign in" : "Sign up")
+        )
+      )
+    );
   }
+
   return children;
 }
 
