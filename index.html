@@ -40,9 +40,7 @@
 <body>
 <div id="root"></div>
 <script>
-/* ============================================================
-   ICON SHIM (standalone build — no lucide-react dependency)
-   ============================================================ */
+/* ICON SHIM (standalone build — no lucide-react dependency) */
 const {
   useState,
   useEffect,
@@ -86,6 +84,7 @@ const ArchiveRestore = makeIcon("♻");
 const X = makeIcon("✕");
 const History = makeIcon("🕒");
 const Filter = makeIcon("▾");
+const CalendarDays = makeIcon("📅");
 
 /* ============================================================
    FONTS
@@ -201,6 +200,64 @@ const T = {
     loadErrorTitle: "Couldn't load your data",
     loadErrorBody: "We couldn't reach your saved data just now. Nothing has been changed — tap retry once you have a connection.",
     retry: "Retry",
+    gameyas: "Gam'eyas",
+    newGameya: "New gam'eya",
+    editGameya: "Edit gam'eya",
+    gameyaName: "Gam'eya name",
+    installment: "Monthly installment",
+    membersCount: "Total members in the gam'eya",
+    firstPayDate: "First payment date",
+    collectDay: "Payout day (of the following month)",
+    trackedMembers: "People from your treasury in this gam'eya",
+    turnHint: "For each person, type the month number they collect in.",
+    addMember: "Add person",
+    turn: "Turn",
+    preview: "Liquidity preview",
+    cycle: "Cycle",
+    payOn: "Installment",
+    collectOn: "Payout",
+    confirm: "Confirm",
+    confirmTitle: "Confirm",
+    confirmAllInst: "Confirm all installments",
+    skip: "Skip",
+    unskip: "Undo",
+    statusDone: "Done",
+    statusSkipped: "Skipped",
+    overdue: "Overdue",
+    dueSoon: "Due soon",
+    nothingDue: "Nothing due in the next 7 days.",
+    viewAll: "View all",
+    listTab: "Gam'eyas",
+    forecastTab: "Forecast",
+    open: "Open",
+    currentBalance: "Balance now",
+    lowestBalance: "Lowest balance",
+    goesNegativeOn: "Goes below zero on",
+    alreadyNegative: "Already below zero",
+    staysPositive: "Balance stays sufficient ✓",
+    peakLending: "Peak you'd lend",
+    peakTotal: "Peak total negative balance (everyone)",
+    endBalance: "At the end",
+    showTimeline: "Show timeline",
+    hideTimeline: "Hide timeline",
+    noGameyas: "No gam'eyas yet. Add your first one.",
+    nothingPlanned: "Nothing planned.",
+    nextDue: "Next",
+    progressLabel: "done",
+    confirmDeleteGameya: "Delete this gam'eya plan? Transactions you already confirmed stay in your records.",
+    noteInstallment: "Gam'eya installment",
+    notePayout: "Gam'eya payout",
+    planNote: "Changing turns or amounts only affects what's still planned. Anything you confirmed stays as a regular transaction.",
+    errName: "Enter a name",
+    errInstallment: "Enter a valid installment",
+    errMembersCount: "Total members must be between 2 and 60",
+    errDate: "Enter a valid date",
+    errCollectDay: "Payout day must be between 1 and 31",
+    errNoMembers: "Add at least one person",
+    errMemberPerson: "Select a person in every row",
+    errTurn: "Turn must be between 1 and the total members",
+    errDupTurn: "Two people can't have the same turn",
+    errDupPerson: "A person appears twice",
     backup: "Backup",
     exportBackup: "Export backup",
     importBackup: "Restore from backup",
@@ -319,6 +376,64 @@ const T = {
     loadErrorTitle: "تعذّر تحميل بياناتك",
     loadErrorBody: "لم نتمكن من الوصول إلى بياناتك المحفوظة الآن. لم يتم تغيير أي شيء — اضغط إعادة المحاولة بمجرد توفر الاتصال.",
     retry: "إعادة المحاولة",
+    gameyas: "الجمعيات",
+    newGameya: "جمعية جديدة",
+    editGameya: "تعديل الجمعية",
+    gameyaName: "اسم الجمعية",
+    installment: "القسط الشهري",
+    membersCount: "إجمالي عدد الأعضاء في الجمعية",
+    firstPayDate: "تاريخ أول قسط",
+    collectDay: "يوم القبض (في الشهر التالي)",
+    trackedMembers: "الأشخاص الموجودون عندك في الجمعية",
+    turnHint: "اكتب لكل شخص رقم الشهر الذي يقبض فيه.",
+    addMember: "إضافة شخص",
+    turn: "الدور",
+    preview: "معاينة السيولة",
+    cycle: "الدورة",
+    payOn: "قسط",
+    collectOn: "قبض",
+    confirm: "تأكيد",
+    confirmTitle: "تأكيد",
+    confirmAllInst: "تأكيد كل الأقساط",
+    skip: "تخطي",
+    unskip: "إلغاء",
+    statusDone: "تم",
+    statusSkipped: "متخطى",
+    overdue: "متأخر",
+    dueSoon: "مستحق قريبًا",
+    nothingDue: "لا يوجد مستحق خلال 7 أيام.",
+    viewAll: "عرض الكل",
+    listTab: "الجمعيات",
+    forecastTab: "التوقع",
+    open: "فتح",
+    currentBalance: "الرصيد الآن",
+    lowestBalance: "أدنى رصيد",
+    goesNegativeOn: "ينزل تحت الصفر في",
+    alreadyNegative: "الرصيد بالسالب بالفعل",
+    staysPositive: "الرصيد كافٍ ✓",
+    peakLending: "أقصى مبلغ ستسلّفه",
+    peakTotal: "أعلى إجمالي رصيد سالب متوقع (الجميع)",
+    endBalance: "في النهاية",
+    showTimeline: "عرض التايم لاين",
+    hideTimeline: "إخفاء التايم لاين",
+    noGameyas: "لا توجد جمعيات بعد. أضف أول جمعية.",
+    nothingPlanned: "لا يوجد شيء مخطط.",
+    nextDue: "القادم",
+    progressLabel: "تم",
+    confirmDeleteGameya: "حذف خطة الجمعية؟ المعاملات التي أكدتها من قبل ستبقى كما هي.",
+    noteInstallment: "قسط جمعية",
+    notePayout: "قبض جمعية",
+    planNote: "تعديل الأدوار أو القسط يغيّر الجدول المتبقي فقط. ما أكدته من قبل يبقى معاملات عادية.",
+    errName: "أدخل اسم الجمعية",
+    errInstallment: "أدخل قسطًا صحيحًا",
+    errMembersCount: "عدد الأعضاء يجب أن يكون بين 2 و60",
+    errDate: "أدخل تاريخًا صحيحًا",
+    errCollectDay: "يوم القبض بين 1 و31",
+    errNoMembers: "أضف شخصًا واحدًا على الأقل",
+    errMemberPerson: "اختر شخصًا في كل صف",
+    errTurn: "الدور يجب أن يكون بين 1 وعدد الأعضاء",
+    errDupTurn: "لا يمكن لشخصين أخذ نفس الدور",
+    errDupPerson: "شخص مكرر",
     backup: "نسخة احتياطية",
     exportBackup: "تصدير نسخة احتياطية",
     importBackup: "استعادة من نسخة احتياطية",
@@ -358,6 +473,146 @@ const COLORS = {
   gold: "#B98A2E",
   goldSoft: "#F5EDDC"
 };
+
+/* GAMEYA-HELPERS-START */
+/* ============================================================
+   GAM'EYA (rotating savings circle) — plan + forecast helpers
+   Model: a gam'eya runs N cycles, one per month. In cycle c every
+   member pays `installment` on the pay day, EXCEPT the member whose
+   turn is c: that member pays nothing in their own cycle and instead
+   collects the NET pot, (N - 1) x installment, on the payout day of
+   the following month. Over the full run every member pays and
+   receives the same total, so a gam'eya only moves cash flow in
+   time — which is exactly what the forecast below shows.
+   ============================================================ */
+const pad2 = n => String(n).padStart(2, "0");
+function isoOk(s) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(s || "");
+}
+
+// Adds whole months to a YYYY-MM-DD string, clamping the day to the
+// target month's length (e.g. the 31st becomes the 30th or 28th).
+function addMonthsISO(iso, add, dayOverride) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const total = m - 1 + add;
+  const yy = y + Math.floor(total / 12);
+  const mm = (total % 12 + 12) % 12;
+  const dim = new Date(yy, mm + 1, 0).getDate();
+  const dd = Math.min(dayOverride || d, dim);
+  return `${yy}-${pad2(mm + 1)}-${pad2(dd)}`;
+}
+function addDaysISO(iso, n) {
+  const [y, m, d] = iso.split("-").map(Number);
+  const dt = new Date(y, m - 1, d + n);
+  return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}-${pad2(dt.getDate())}`;
+}
+function fmtDate(iso) {
+  if (!isoOk(iso)) return "";
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString();
+}
+
+// Every planned/confirmed/skipped item of one gam'eya, for each tracked member.
+// An item is "confirmed" only while the real transaction it created still exists,
+// so deleting that transaction automatically puts the item back to "planned".
+function gameyaItems(g, liveTxIds) {
+  const out = [];
+  const N = Number(g.membersCount) || 0;
+  const inst = Number(g.installment) || 0;
+  if (!isoOk(g.firstPayDate) || N < 2 || inst <= 0) return out;
+  (g.members || []).forEach(m => {
+    for (let c = 1; c <= N; c++) {
+      const isTurn = c === Number(m.turn);
+      const key = `${m.id}:${c}:${isTurn ? "C" : "I"}`;
+      const date = isTurn ? addMonthsISO(g.firstPayDate, c, Number(g.collectDay) || 1) : addMonthsISO(g.firstPayDate, c - 1);
+      const amount = isTurn ? (N - 1) * inst : inst;
+      const conf = g.confirmations && g.confirmations[key];
+      let status = "planned";
+      if (conf && liveTxIds.has(conf.txId)) status = "confirmed";else if (g.skipped && g.skipped[key]) status = "skipped";
+      out.push({
+        key,
+        gameyaId: g.id,
+        gameyaName: g.name,
+        memberId: m.id,
+        personId: m.personId,
+        cycle: c,
+        total: N,
+        kind: isTurn ? "COLLECT" : "INST",
+        date,
+        amount,
+        signed: isTurn ? amount : -amount,
+        status,
+        txId: conf ? conf.txId : null
+      });
+    }
+  });
+  return out;
+}
+function allGameyaItems(gameyas, transactions) {
+  const live = new Set((transactions || []).filter(t => !t.deleted).map(t => t.id));
+  return (gameyas || []).filter(g => !g.archived).flatMap(g => gameyaItems(g, live));
+}
+
+// Earliest date first; on the same date, money going out is applied before
+// money coming in (the cautious order for a liquidity check).
+function sortEvents(a, b) {
+  return a.date < b.date ? -1 : a.date > b.date ? 1 : a.signed - b.signed;
+}
+
+// One person: start from their real current balance, apply only what is still planned.
+function forecastPerson(startBalance, items) {
+  const evs = items.filter(i => i.status === "planned").sort(sortEvents);
+  let bal = startBalance;
+  let min = startBalance;
+  let minDate = null;
+  let firstNeg = startBalance < 0 ? "now" : null;
+  const rows = evs.map(e => {
+    bal += e.signed;
+    if (bal < min) {
+      min = bal;
+      minDate = e.date;
+    }
+    if (bal < 0 && !firstNeg) firstNeg = e.date;
+    return {
+      ...e,
+      running: bal
+    };
+  });
+  return {
+    start: startBalance,
+    rows,
+    min,
+    minDate,
+    firstNeg,
+    end: bal,
+    peakShortfall: Math.max(0, -min)
+  };
+}
+
+// Everyone together: the highest total of negative balances at any point in time,
+// i.e. the most the treasury would be lending out at once.
+function forecastTotals(startBalances, items) {
+  const bal = {
+    ...startBalances
+  };
+  const negSum = () => Object.values(bal).reduce((s, v) => s + Math.max(0, -v), 0);
+  let peak = negSum();
+  let peakDate = peak > 0 ? "now" : null;
+  items.filter(i => i.status === "planned").sort(sortEvents).forEach(e => {
+    bal[e.personId] = (bal[e.personId] || 0) + e.signed;
+    const n = negSum();
+    if (n > peak) {
+      peak = n;
+      peakDate = e.date;
+    }
+  });
+  return {
+    peak,
+    peakDate
+  };
+}
+/* GAMEYA-HELPERS-END */
+
 function buildCsvContent(data, ledger, totalAccounts, totalCounterparties) {
   const accounts = Object.fromEntries(data.accounts.map(a => [a.id, a.name]));
   const people = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
@@ -416,6 +671,16 @@ function buildCsvContent(data, ledger, totalAccounts, totalCounterparties) {
     }
     lines.push(row([tr.txDate, typeLabel[tr.type] || tr.type, from, to, tr.amount, tr.feeAmount || "", tr.feeBearerType || "", tr.note || "", tr.createdAt || ""]));
   });
+  const liveIds = new Set(data.transactions.filter(tr => !tr.deleted).map(tr => tr.id));
+  const gItems = (data.gameyas || []).flatMap(g => gameyaItems(g, liveIds)).sort(sortEvents);
+  if (gItems.length) {
+    lines.push("");
+    lines.push(row(["GAM'EYA PLAN"]));
+    lines.push(row(["Gam'eya", "Person", "Cycle", "Type", "Date", "Amount", "Status"]));
+    gItems.forEach(i => {
+      lines.push(row([i.gameyaName, people[i.personId] || "", `${i.cycle}/${i.total}`, i.kind === "COLLECT" ? "Payout" : "Installment", i.date, i.signed, i.status]));
+    });
+  }
   return lines.join("\n");
 }
 
@@ -513,85 +778,49 @@ const emptyData = () => ({
   auditLog: [],
   lang: "en",
   lastBackupAt: null,
-  lastDriveSyncAt: null
+  lastDriveSyncAt: null,
+  gameyas: []
 });
 const BACKUP_REMINDER_DAYS = 7;
 
 // Set by AuthGate once a real, permanent Firebase account is signed in.
-// Unlike anonymous auth, this uid is tied to the email/password account
-// itself, not to this device's browser storage — so clearing Safari data,
-// switching phones, or ITP storage limits can no longer orphan the data.
+// The uid belongs to the email/password account itself (not to this browser),
+// so clearing Safari data or switching phones can no longer orphan the data.
 let currentUid = null;
 async function loadData() {
-  // IMPORTANT: no try/catch swallowing errors here. If anything fails
-  // (network, permissions), it must propagate to the caller so the app
-  // shows a retry screen instead of silently treating a failed read as
-  // "this user has no data yet" and later saving an empty document over
-  // real data.
+  // No try/catch on purpose: a failed read must surface as an error screen,
+  // never be mistaken for "this user has no data yet".
   const snap = await firebase.firestore().collection("users").doc(currentUid).get();
   if (snap.exists) return {
     ...emptyData(),
     ...snap.data()
   };
-  // snap.exists === false is the ONLY legitimate case for a fresh user:
-  // Firestore has definitively confirmed there is no document yet.
+  // snap.exists === false is the ONLY legitimate "brand new user" case.
   return emptyData();
 }
 async function saveData(data) {
   await firebase.firestore().collection("users").doc(currentUid).set(data);
 }
-
-/* ============================================================
-   AUTH GATE — real email/password sign-in, replacing anonymous auth
-   ============================================================ */
-function AuthGate({ children }) {
+function AuthGate({
+  children
+}) {
   const [authUser, setAuthUser] = React.useState(undefined); // undefined = checking, null = signed out
-  const [mode, setMode] = React.useState("signin"); // "signin" | "signup"
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
   const [err, setErr] = React.useState("");
   const [busy, setBusy] = React.useState(false);
-
   React.useEffect(() => {
     return firebase.auth().onAuthStateChanged(u => {
       currentUid = u ? u.uid : null;
       setAuthUser(u);
     });
   }, []);
-
   const submit = e => {
     e.preventDefault();
     setErr("");
-
-    // Validate sign-up specific fields
-    if (mode === "signup") {
-      if (password.length < 6) {
-        setErr("Password must be at least 6 characters");
-        return;
-      }
-      if (password !== confirmPassword) {
-        setErr("Passwords don't match");
-        return;
-      }
-    }
-
     setBusy(true);
-    const authAction = mode === "signup"
-      ? firebase.auth().createUserWithEmailAndPassword(email, password)
-      : firebase.auth().signInWithEmailAndPassword(email, password);
-
-    authAction
-      .catch(error => setErr(error.message))
-      .finally(() => setBusy(false));
+    firebase.auth().signInWithEmailAndPassword(email, password).catch(error => setErr(error.message)).finally(() => setBusy(false));
   };
-
-  const switchMode = () => {
-    setMode(m => (m === "signin" ? "signup" : "signin"));
-    setErr("");
-    setConfirmPassword("");
-  };
-
   const shellStyle = {
     minHeight: "100vh",
     display: "flex",
@@ -601,129 +830,94 @@ function AuthGate({ children }) {
     padding: 24,
     fontFamily: "system-ui, sans-serif"
   };
-
   if (authUser === undefined) {
-    return /*#__PURE__*/React.createElement("div", { style: shellStyle },
-      /*#__PURE__*/React.createElement("div", { style: { color: "#3A4452" } }, "Loading…")
-    );
+    return /*#__PURE__*/React.createElement("div", {
+      style: shellStyle
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: "#3A4452"
+      }
+    }, "Loading…"));
   }
-
   if (!authUser) {
-    const isSignup = mode === "signup";
-    return /*#__PURE__*/React.createElement("div", { style: shellStyle },
-      /*#__PURE__*/React.createElement("form", {
-        onSubmit: submit,
-        style: {
-          background: "#fff",
-          padding: 28,
-          borderRadius: 14,
-          width: 320,
-          maxWidth: "92vw",
-          border: "1px solid #E3DFD3"
-        }
-      },
-        /*#__PURE__*/React.createElement("div", {
-          style: { fontWeight: 700, fontSize: 20, marginBottom: 4, color: "#1B2430" }
-        }, "Treasury"),
-        /*#__PURE__*/React.createElement("div", {
-          style: { fontSize: 12.5, color: "#3A4452", marginBottom: 18 }
-        }, isSignup ? "Create your account" : "Sign in to continue"),
-
-        /*#__PURE__*/React.createElement("input", {
-          type: "email",
-          required: true,
-          autoCapitalize: "none",
-          placeholder: "Email",
-          value: email,
-          onChange: e => setEmail(e.target.value),
-          style: {
-            width: "100%",
-            padding: "10px 12px",
-            marginBottom: 10,
-            borderRadius: 8,
-            border: "1px solid #E3DFD3",
-            fontSize: 14,
-            boxSizing: "border-box"
-          }
-        }),
-
-        /*#__PURE__*/React.createElement("input", {
-          type: "password",
-          required: true,
-          placeholder: "Password (min 6 characters)",
-          value: password,
-          onChange: e => setPassword(e.target.value),
-          style: {
-            width: "100%",
-            padding: "10px 12px",
-            marginBottom: isSignup ? 10 : 14,
-            borderRadius: 8,
-            border: "1px solid #E3DFD3",
-            fontSize: 14,
-            boxSizing: "border-box"
-          }
-        }),
-
-        isSignup && /*#__PURE__*/React.createElement("input", {
-          type: "password",
-          required: true,
-          placeholder: "Confirm password",
-          value: confirmPassword,
-          onChange: e => setConfirmPassword(e.target.value),
-          style: {
-            width: "100%",
-            padding: "10px 12px",
-            marginBottom: 14,
-            borderRadius: 8,
-            border: "1px solid #E3DFD3",
-            fontSize: 14,
-            boxSizing: "border-box"
-          }
-        }),
-
-        err && /*#__PURE__*/React.createElement("div", {
-          style: { color: "#B5533C", fontSize: 12.5, marginBottom: 10 }
-        }, err),
-
-        /*#__PURE__*/React.createElement("button", {
-          type: "submit",
-          disabled: busy,
-          style: {
-            width: "100%",
-            padding: "11px",
-            borderRadius: 8,
-            border: "none",
-            background: "#1B2430",
-            color: "#fff",
-            fontWeight: 600,
-            fontSize: 14,
-            cursor: "pointer",
-            marginBottom: 12
-          }
-        }, busy ? "…" : isSignup ? "Create account" : "Sign in"),
-
-        /*#__PURE__*/React.createElement("div", {
-          style: { textAlign: "center", fontSize: 13, color: "#3A4452" }
-        },
-          isSignup ? "Already have an account? " : "Don't have an account? ",
-          /*#__PURE__*/React.createElement("button", {
-            type: "button",
-            onClick: switchMode,
-            style: {
-              background: "none",
-              border: "none",
-              color: "#2F6F5E",
-              fontWeight: 600,
-              cursor: "pointer",
-              fontSize: 13,
-              padding: 0
-            }
-          }, isSignup ? "Sign in" : "Sign up")
-        )
-      )
-    );
+    return /*#__PURE__*/React.createElement("div", {
+      style: shellStyle
+    }, /*#__PURE__*/React.createElement("form", {
+      onSubmit: submit,
+      style: {
+        background: "#fff",
+        padding: 28,
+        borderRadius: 14,
+        width: 320,
+        maxWidth: "92vw",
+        border: "1px solid #E3DFD3"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 20,
+        marginBottom: 4,
+        color: "#1B2430"
+      }
+    }, "Treasury"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: "#3A4452",
+        marginBottom: 18
+      }
+    }, "Sign in to continue"), /*#__PURE__*/React.createElement("input", {
+      type: "email",
+      required: true,
+      autoCapitalize: "none",
+      placeholder: "Email",
+      value: email,
+      onChange: e => setEmail(e.target.value),
+      style: {
+        width: "100%",
+        padding: "10px 12px",
+        marginBottom: 10,
+        borderRadius: 8,
+        border: "1px solid #E3DFD3",
+        fontSize: 14,
+        boxSizing: "border-box"
+      }
+    }), /*#__PURE__*/React.createElement("input", {
+      type: "password",
+      required: true,
+      placeholder: "Password",
+      value: password,
+      onChange: e => setPassword(e.target.value),
+      style: {
+        width: "100%",
+        padding: "10px 12px",
+        marginBottom: 14,
+        borderRadius: 8,
+        border: "1px solid #E3DFD3",
+        fontSize: 14,
+        boxSizing: "border-box"
+      }
+    }), err && /*#__PURE__*/React.createElement("div", {
+      style: {
+        color: "#B5533C",
+        fontSize: 12.5,
+        marginBottom: 10
+      }
+    }, err), /*#__PURE__*/React.createElement("button", {
+      type: "submit",
+      disabled: busy,
+      style: {
+        width: "100%",
+        padding: "11px",
+        borderRadius: 8,
+        border: "none",
+        background: "#1B2430",
+        color: "#fff",
+        fontWeight: 600,
+        fontSize: 14,
+        cursor: "pointer"
+      }
+    }, busy ? "…" : "Sign in")));
   }
-
   return children;
 }
 
@@ -798,6 +992,7 @@ function App() {
   const [data, setData] = useState(emptyData());
   const [page, setPage] = useState("dashboard");
   const [statementPerson, setStatementPerson] = useState(null);
+  const [confirmItems, setConfirmItems] = useState(null);
   const runLoad = useCallback(() => {
     setLoading(true);
     setLoadError(null);
@@ -842,6 +1037,7 @@ function App() {
   const displayFont = lang === "ar" ? "'Cairo', sans-serif" : "'Fraunces', serif";
   const bodyFont = lang === "ar" ? "'Cairo', sans-serif" : "'Inter', sans-serif";
   const ledger = useMemo(() => computeLedger(data.transactions), [data.transactions]);
+  const gameyaItemsAll = useMemo(() => allGameyaItems(data.gameyas, data.transactions), [data.gameyas, data.transactions]);
   const totalAccounts = Object.values(ledger.accountBal).reduce((a, b) => a + b, 0);
   const totalCounterparties = Object.values(ledger.cpBal).reduce((a, b) => a + b, 0);
   const reconciled = Math.abs(totalAccounts + ledger.loss - totalCounterparties) < 0.01;
@@ -1080,6 +1276,119 @@ function App() {
     });
   };
 
+  /* ---------- Gam'eyas ---------- */
+  const addGameya = g => {
+    const ng = {
+      id: uid(),
+      createdAt: new Date().toISOString(),
+      confirmations: {},
+      skipped: {},
+      archived: false,
+      ...g
+    };
+    setData(d => ({
+      ...d,
+      gameyas: [...(d.gameyas || []), ng]
+    }));
+    pushAudit({
+      action: "created",
+      entityType: "gameya",
+      entityId: ng.id,
+      label: g.name
+    });
+  };
+  const updateGameya = (id, patch) => {
+    setData(d => ({
+      ...d,
+      gameyas: (d.gameyas || []).map(g => g.id === id ? {
+        ...g,
+        ...patch
+      } : g)
+    }));
+    pushAudit({
+      action: "edited",
+      entityType: "gameya",
+      entityId: id,
+      label: patch.name || id
+    });
+  };
+  const deleteGameya = id => {
+    setData(d => ({
+      ...d,
+      gameyas: (d.gameyas || []).filter(g => g.id !== id)
+    }));
+    pushAudit({
+      action: "deleted",
+      entityType: "gameya",
+      entityId: id,
+      label: id
+    });
+  };
+  const toggleSkip = (gameyaId, key) => {
+    setData(d => ({
+      ...d,
+      gameyas: (d.gameyas || []).map(g => g.id !== gameyaId ? g : {
+        ...g,
+        skipped: {
+          ...(g.skipped || {}),
+          [key]: !(g.skipped && g.skipped[key])
+        }
+      })
+    }));
+  };
+  // Creates the real transactions AND links them to their plan items in ONE state
+  // update, so a plan item can never say "done" without its transaction existing.
+  const confirmGameyaItems = entries => {
+    const now = new Date().toISOString();
+    const made = entries.map(e => ({
+      ...e,
+      txId: uid()
+    }));
+    setData(d => {
+      const newTx = made.map(e => ({
+        id: e.txId,
+        createdAt: now,
+        updatedAt: now,
+        deleted: false,
+        history: [],
+        ...e.tx
+      }));
+      const gameyas = (d.gameyas || []).map(g => {
+        const mine = made.filter(e => e.gameyaId === g.id);
+        if (!mine.length) return g;
+        const conf = {
+          ...(g.confirmations || {})
+        };
+        const skipped = {
+          ...(g.skipped || {})
+        };
+        mine.forEach(e => {
+          conf[e.key] = {
+            txId: e.txId,
+            at: now
+          };
+          delete skipped[e.key];
+        });
+        return {
+          ...g,
+          confirmations: conf,
+          skipped
+        };
+      });
+      return {
+        ...d,
+        transactions: [...d.transactions, ...newTx],
+        gameyas
+      };
+    });
+    made.forEach(e => pushAudit({
+      action: "created",
+      entityType: "transaction",
+      entityId: e.txId,
+      label: `${e.tx.type} ${e.tx.amount}`
+    }));
+  };
+
   /* ---------- Transactions ---------- */
   const addTransaction = tx => {
     const newTx = {
@@ -1230,7 +1539,15 @@ function App() {
     saveCsvToDrive,
     driveStatus,
     driveReady,
-    driveAutoSyncFailed
+    driveAutoSyncFailed,
+    gameyaItemsAll,
+    addGameya,
+    updateGameya,
+    deleteGameya,
+    toggleSkip,
+    confirmGameyaItems,
+    openConfirm: setConfirmItems,
+    setPage
   };
   return /*#__PURE__*/React.createElement("div", {
     dir: dir,
@@ -1304,7 +1621,13 @@ function App() {
     ctx: ctx
   }), page === "treasury" && /*#__PURE__*/React.createElement(TreasuryPage, {
     ctx: ctx
-  }))), showBackupReminder && /*#__PURE__*/React.createElement(Modal, {
+  }), page === "gameyas" && /*#__PURE__*/React.createElement(GameyasPage, {
+    ctx: ctx
+  }))), confirmItems && /*#__PURE__*/React.createElement(GameyaConfirmSheet, {
+    items: confirmItems,
+    ctx: ctx,
+    onClose: () => setConfirmItems(null)
+  }), showBackupReminder && /*#__PURE__*/React.createElement(Modal, {
     title: t.backupReminderTitle,
     onClose: () => setShowBackupReminder(false),
     displayFont: displayFont
@@ -1358,6 +1681,10 @@ function Sidebar({
     key: "treasury",
     label: t.treasury,
     icon: Wallet
+  }, {
+    key: "gameyas",
+    label: t.gameyas,
+    icon: CalendarDays
   }];
   return /*#__PURE__*/React.createElement("aside", {
     className: "no-print app-sidebar",
@@ -1466,6 +1793,8 @@ function Dashboard({
   return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PageHeader, {
     title: t.dashboard,
     displayFont: displayFont
+  }), /*#__PURE__*/React.createElement(DueSoonCard, {
+    ctx: ctx
   }), /*#__PURE__*/React.createElement("div", {
     style: {
       background: COLORS.paperCard,
@@ -3021,6 +3350,961 @@ function StatementView({
     }
   }, fmt(r.running)))))), rows.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
     text: t.noStatementTx
+  }));
+}
+
+/* ============================================================
+   GAM'EYAS
+   ============================================================ */
+function IntField({
+  value,
+  onChange,
+  placeholder
+}) {
+  return /*#__PURE__*/React.createElement("input", {
+    type: "tel",
+    inputMode: "numeric",
+    dir: "ltr",
+    lang: "en",
+    className: "mono",
+    style: {
+      ...inputStyle,
+      textAlign: "left",
+      direction: "ltr"
+    },
+    placeholder: placeholder,
+    value: value === undefined || value === null ? "" : value,
+    onChange: e => onChange(e.target.value.replace(/[^\d]/g, ""))
+  });
+}
+function ForecastCard({
+  t,
+  name,
+  f,
+  defaultOpen
+}) {
+  const [open, setOpen] = useState(!!defaultOpen);
+  const bad = f.min < 0;
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: COLORS.paperCard,
+      border: `1px solid ${bad ? COLORS.rust : COLORS.line}`,
+      borderRadius: 12,
+      padding: 14,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700
+    }
+  }, name), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      fontWeight: 700,
+      color: bad ? COLORS.rust : COLORS.green
+    }
+  }, bad ? f.firstNeg === "now" ? t.alreadyNegative : `${t.goesNegativeOn} ${fmtDate(f.firstNeg)}` : t.staysPositive)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 14,
+      flexWrap: "wrap",
+      margin: "8px 0",
+      fontSize: 12.5,
+      color: COLORS.inkSoft
+    }
+  }, /*#__PURE__*/React.createElement("span", null, t.currentBalance, ": ", /*#__PURE__*/React.createElement("b", {
+    className: "mono"
+  }, fmt(f.start))), /*#__PURE__*/React.createElement("span", null, t.lowestBalance, ": ", /*#__PURE__*/React.createElement("b", {
+    className: "mono",
+    style: {
+      color: f.min < 0 ? COLORS.rust : COLORS.ink
+    }
+  }, fmt(f.min))), bad && /*#__PURE__*/React.createElement("span", null, t.peakLending, ": ", /*#__PURE__*/React.createElement("b", {
+    className: "mono",
+    style: {
+      color: COLORS.rust
+    }
+  }, fmt(f.peakShortfall))), /*#__PURE__*/React.createElement("span", null, t.endBalance, ": ", /*#__PURE__*/React.createElement("b", {
+    className: "mono"
+  }, fmt(f.end)))), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    variant: "ghost",
+    onClick: () => setOpen(o => !o)
+  }, open ? t.hideTimeline : t.showTimeline), open && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, f.rows.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
+    text: t.nothingPlanned
+  }), f.rows.map(r => /*#__PURE__*/React.createElement("div", {
+    key: r.gameyaId + r.key,
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      gap: 8,
+      padding: "6px 0",
+      borderTop: `1px solid ${COLORS.line}`,
+      fontSize: 12.5
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 0
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 600
+    }
+  }, fmtDate(r.date)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.inkSoft
+    }
+  }, r.gameyaName, " · ", r.kind === "COLLECT" ? t.collectOn : t.payOn, " ", r.cycle, "/", r.total)), /*#__PURE__*/React.createElement("div", {
+    style: {
+      textAlign: "end"
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "mono",
+    style: {
+      fontWeight: 600,
+      color: r.signed >= 0 ? COLORS.green : COLORS.rust
+    }
+  }, r.signed >= 0 ? "+" : "", fmt(r.signed)), /*#__PURE__*/React.createElement("div", {
+    className: "mono",
+    style: {
+      color: r.running < 0 ? COLORS.rust : COLORS.inkSoft
+    }
+  }, fmt(r.running)))))));
+}
+
+/* Confirming turns planned items into REAL transactions (Money Out for an
+   installment, Money In for the payout) and links them to the plan. */
+function GameyaConfirmSheet({
+  items,
+  ctx,
+  onClose
+}) {
+  const {
+    t,
+    data,
+    displayFont,
+    confirmGameyaItems
+  } = ctx;
+  const people = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
+  const [accountId, setAccountId] = useState("");
+  const [date, setDate] = useState(todayISO());
+  const [amounts, setAmounts] = useState(() => Object.fromEntries(items.map(i => [i.key, String(i.amount)])));
+  const [fees, setFees] = useState({});
+  const [bearer, setBearer] = useState("self");
+  const [err, setErr] = useState("");
+  const account = data.accounts.find(a => a.id === accountId);
+  const hasInst = items.some(i => i.kind === "INST");
+  const showFee = !!(account && account.feeEnabled && hasInst);
+  const submit = () => {
+    if (!accountId) {
+      setErr(t.needAccount);
+      return;
+    }
+    if (!isoOk(date)) {
+      setErr(t.errDate);
+      return;
+    }
+    const entries = [];
+    for (const it of items) {
+      const amt = Number(amounts[it.key]);
+      if (!(amt > 0)) {
+        setErr(t.needAmount);
+        return;
+      }
+      const isInst = it.kind === "INST";
+      const fee = isInst && showFee ? Number(fees[it.key]) || 0 : 0;
+      entries.push({
+        gameyaId: it.gameyaId,
+        key: it.key,
+        tx: {
+          type: isInst ? "OUT" : "IN",
+          amount: amt,
+          txDate: date,
+          note: `${isInst ? t.noteInstallment : t.notePayout} — ${it.gameyaName} (${it.cycle}/${it.total})`,
+          accountId,
+          toAccountId: null,
+          counterpartyId: it.personId,
+          toCounterpartyId: null,
+          feeAmount: fee,
+          feeBearerType: fee > 0 ? bearer : "loss",
+          feeBearerCounterpartyId: null
+        }
+      });
+    }
+    confirmGameyaItems(entries);
+    onClose();
+  };
+  return /*#__PURE__*/React.createElement(Modal, {
+    title: t.confirmTitle,
+    onClose: onClose,
+    displayFont: displayFont,
+    wide: true
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: t.selectAccount
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: accountId,
+    onChange: e => setAccountId(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, "—"), data.accounts.map(a => /*#__PURE__*/React.createElement("option", {
+    key: a.id,
+    value: a.id
+  }, a.name)))), /*#__PURE__*/React.createElement(Field, {
+    label: t.date
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    style: inputStyle,
+    value: date,
+    max: todayISO(),
+    onChange: e => setDate(e.target.value)
+  })), items.map(it => /*#__PURE__*/React.createElement("div", {
+    key: it.gameyaId + it.key,
+    style: {
+      border: `1px solid ${COLORS.line}`,
+      borderRadius: 10,
+      padding: 10,
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 13.5
+    }
+  }, people[it.personId] || "—"), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: COLORS.inkSoft,
+      marginBottom: 6
+    }
+  }, it.gameyaName, " · ", it.kind === "COLLECT" ? t.collectOn : t.payOn, " ", it.cycle, "/", it.total, " · ", fmtDate(it.date)), /*#__PURE__*/React.createElement(AmountField, {
+    value: amounts[it.key],
+    onChange: v => setAmounts(a => ({
+      ...a,
+      [it.key]: v
+    }))
+  }), showFee && it.kind === "INST" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.inkSoft,
+      marginBottom: 4
+    }
+  }, t.fee), /*#__PURE__*/React.createElement(AmountField, {
+    value: fees[it.key] === undefined ? "" : fees[it.key],
+    onChange: v => setFees(f => ({
+      ...f,
+      [it.key]: v
+    }))
+  })))), showFee && /*#__PURE__*/React.createElement(Field, {
+    label: t.feeBearer
+  }, /*#__PURE__*/React.createElement("select", {
+    style: inputStyle,
+    value: bearer,
+    onChange: e => setBearer(e.target.value)
+  }, /*#__PURE__*/React.createElement("option", {
+    value: "self"
+  }, t.self), /*#__PURE__*/React.createElement("option", {
+    value: "loss"
+  }, t.loss))), err && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.rust,
+      fontSize: 12.5,
+      marginBottom: 10
+    }
+  }, err), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "flex-end"
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    variant: "outline",
+    onClick: onClose
+  }, t.cancel), /*#__PURE__*/React.createElement(Btn, {
+    onClick: submit
+  }, t.confirm)));
+}
+function GameyaForm({
+  ctx,
+  initial,
+  onClose
+}) {
+  const {
+    t,
+    data,
+    ledger,
+    displayFont,
+    addGameya,
+    updateGameya
+  } = ctx;
+  const [name, setName] = useState(initial ? initial.name : "");
+  const [installment, setInstallment] = useState(initial ? String(initial.installment) : "");
+  const [membersCount, setMembersCount] = useState(initial ? String(initial.membersCount) : "");
+  const [firstPayDate, setFirstPayDate] = useState(initial ? initial.firstPayDate : "");
+  const [collectDay, setCollectDay] = useState(initial ? String(initial.collectDay || 1) : "1");
+  const [members, setMembers] = useState(initial && initial.members && initial.members.length ? initial.members.map(m => ({
+    id: m.id,
+    personId: m.personId,
+    turn: String(m.turn)
+  })) : [{
+    id: uid(),
+    personId: "",
+    turn: ""
+  }]);
+  const [err, setErr] = useState("");
+  const inUse = new Set(members.map(m => m.personId));
+  const people = data.counterparties.filter(p => !p.archived || inUse.has(p.id));
+  const peopleMap = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
+
+  // Live liquidity preview: this (draft) gam'eya on top of everything else the person is already in.
+  const N = Number(membersCount) || 0;
+  const inst = Number(installment) || 0;
+  const validMembers = members.filter(m => m.personId && Number(m.turn) >= 1 && Number(m.turn) <= N);
+  const draftId = initial ? initial.id : "__draft__";
+  const draft = {
+    id: draftId,
+    name: name || "—",
+    installment: inst,
+    membersCount: N,
+    firstPayDate,
+    collectDay: Number(collectDay) || 1,
+    members: validMembers.map(m => ({
+      id: m.id,
+      personId: m.personId,
+      turn: Number(m.turn)
+    })),
+    confirmations: initial ? initial.confirmations || {} : {},
+    skipped: initial ? initial.skipped || {} : {}
+  };
+  const live = new Set(data.transactions.filter(tr => !tr.deleted).map(tr => tr.id));
+  const draftItems = gameyaItems(draft, live);
+  const otherItems = (data.gameyas || []).filter(g => !g.archived && g.id !== draftId).flatMap(g => gameyaItems(g, live));
+  const previews = draftItems.length ? validMembers.map(m => ({
+    personId: m.personId,
+    f: forecastPerson(ledger.cpBal[m.personId] || 0, [...otherItems, ...draftItems].filter(i => i.personId === m.personId))
+  })) : [];
+  const submit = () => {
+    if (!name.trim()) {
+      setErr(t.errName);
+      return;
+    }
+    if (!(inst > 0)) {
+      setErr(t.errInstallment);
+      return;
+    }
+    if (!(Number.isInteger(N) && N >= 2 && N <= 60)) {
+      setErr(t.errMembersCount);
+      return;
+    }
+    if (!isoOk(firstPayDate)) {
+      setErr(t.errDate);
+      return;
+    }
+    const cd = Number(collectDay);
+    if (!(cd >= 1 && cd <= 31)) {
+      setErr(t.errCollectDay);
+      return;
+    }
+    if (members.length === 0) {
+      setErr(t.errNoMembers);
+      return;
+    }
+    const turns = new Set();
+    const persons = new Set();
+    for (const m of members) {
+      if (!m.personId) {
+        setErr(t.errMemberPerson);
+        return;
+      }
+      const k = Number(m.turn);
+      if (!(Number.isInteger(k) && k >= 1 && k <= N)) {
+        setErr(t.errTurn);
+        return;
+      }
+      if (turns.has(k)) {
+        setErr(t.errDupTurn);
+        return;
+      }
+      if (persons.has(m.personId)) {
+        setErr(t.errDupPerson);
+        return;
+      }
+      turns.add(k);
+      persons.add(m.personId);
+    }
+    const payload = {
+      name: name.trim(),
+      installment: inst,
+      membersCount: N,
+      firstPayDate,
+      collectDay: cd,
+      members: members.map(m => ({
+        id: m.id,
+        personId: m.personId,
+        turn: Number(m.turn)
+      }))
+    };
+    if (initial) updateGameya(initial.id, payload);else addGameya(payload);
+    onClose();
+  };
+  return /*#__PURE__*/React.createElement(Modal, {
+    title: initial ? t.editGameya : t.newGameya,
+    onClose: onClose,
+    displayFont: displayFont,
+    wide: true
+  }, /*#__PURE__*/React.createElement(Field, {
+    label: t.gameyaName
+  }, /*#__PURE__*/React.createElement("input", {
+    style: inputStyle,
+    value: name,
+    onChange: e => setName(e.target.value)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: t.installment
+  }, /*#__PURE__*/React.createElement(AmountField, {
+    value: installment,
+    onChange: setInstallment
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: t.membersCount
+  }, /*#__PURE__*/React.createElement(IntField, {
+    value: membersCount,
+    onChange: setMembersCount
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: t.firstPayDate
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    style: inputStyle,
+    value: firstPayDate,
+    onChange: e => setFirstPayDate(e.target.value)
+  })), /*#__PURE__*/React.createElement(Field, {
+    label: t.collectDay
+  }, /*#__PURE__*/React.createElement(IntField, {
+    value: collectDay,
+    onChange: setCollectDay
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.inkSoft,
+      marginBottom: 2,
+      fontWeight: 500
+    }
+  }, t.trackedMembers), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.inkSoft,
+      marginBottom: 8
+    }
+  }, t.turnHint), members.map(m => /*#__PURE__*/React.createElement("div", {
+    key: m.id,
+    style: {
+      display: "flex",
+      gap: 6,
+      marginBottom: 8,
+      alignItems: "center"
+    }
+  }, /*#__PURE__*/React.createElement("select", {
+    style: {
+      ...inputStyle,
+      flex: 2,
+      minWidth: 0
+    },
+    value: m.personId,
+    onChange: e => setMembers(arr => arr.map(x => x.id === m.id ? {
+      ...x,
+      personId: e.target.value
+    } : x))
+  }, /*#__PURE__*/React.createElement("option", {
+    value: ""
+  }, t.selectPerson), people.map(p => /*#__PURE__*/React.createElement("option", {
+    key: p.id,
+    value: p.id
+  }, p.name))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      flex: 1,
+      minWidth: 64
+    }
+  }, /*#__PURE__*/React.createElement(IntField, {
+    value: m.turn,
+    placeholder: t.turn,
+    onChange: v => setMembers(arr => arr.map(x => x.id === m.id ? {
+      ...x,
+      turn: v
+    } : x))
+  })), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    variant: "ghost",
+    onClick: () => setMembers(arr => arr.filter(x => x.id !== m.id))
+  }, /*#__PURE__*/React.createElement(X, {
+    size: 14
+  })))), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    variant: "outline",
+    onClick: () => setMembers(arr => [...arr, {
+      id: uid(),
+      personId: "",
+      turn: ""
+    }])
+  }, /*#__PURE__*/React.createElement(Plus, {
+    size: 13
+  }), t.addMember)), previews.length > 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginBottom: 10
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 13.5,
+      marginBottom: 8
+    }
+  }, t.preview), previews.map(p => /*#__PURE__*/React.createElement(ForecastCard, {
+    key: p.personId,
+    t: t,
+    name: peopleMap[p.personId] || "—",
+    f: p.f
+  }))), initial && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.inkSoft,
+      marginBottom: 10
+    }
+  }, t.planNote), err && /*#__PURE__*/React.createElement("div", {
+    style: {
+      color: COLORS.rust,
+      fontSize: 12.5,
+      marginBottom: 10
+    }
+  }, err), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "flex-end"
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    variant: "outline",
+    onClick: onClose
+  }, t.cancel), /*#__PURE__*/React.createElement(Btn, {
+    onClick: submit
+  }, t.save)));
+}
+function GameyaDetail({
+  ctx,
+  gameyaId,
+  onClose,
+  onEdit
+}) {
+  const {
+    t,
+    data,
+    gameyaItemsAll,
+    openConfirm,
+    toggleSkip,
+    deleteGameya,
+    displayFont
+  } = ctx;
+  const g = (data.gameyas || []).find(x => x.id === gameyaId);
+  if (!g) return null;
+  const people = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
+  const items = gameyaItemsAll.filter(i => i.gameyaId === g.id);
+  const N = Number(g.membersCount) || 0;
+  const cycles = Array.from({
+    length: N
+  }, (_, i) => i + 1);
+  const today = todayISO();
+  return /*#__PURE__*/React.createElement(Modal, {
+    title: g.name,
+    onClose: onClose,
+    displayFont: displayFont,
+    wide: true
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.inkSoft,
+      marginBottom: 12
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "mono"
+  }, fmt(g.installment)), " × ", N, " · ", t.collectOn, ": ", /*#__PURE__*/React.createElement("span", {
+    className: "mono"
+  }, fmt((N - 1) * g.installment))), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    variant: "outline",
+    onClick: onEdit
+  }, /*#__PURE__*/React.createElement(Pencil, {
+    size: 13
+  }), t.edit), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    variant: "danger",
+    onClick: () => {
+      if (window.confirm(t.confirmDeleteGameya)) {
+        deleteGameya(g.id);
+        onClose();
+      }
+    }
+  }, /*#__PURE__*/React.createElement(Trash2, {
+    size: 13
+  }), t.delete)), cycles.map(c => {
+    const ci = items.filter(i => i.cycle === c);
+    if (!ci.length) return null;
+    const pendingInst = ci.filter(i => i.kind === "INST" && i.status === "planned");
+    return /*#__PURE__*/React.createElement("div", {
+      key: c,
+      style: {
+        border: `1px solid ${COLORS.line}`,
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 10
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        marginBottom: 6,
+        gap: 8,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700,
+        fontSize: 13
+      }
+    }, t.cycle, " ", c, "/", N, " · ", fmtDate(addMonthsISO(g.firstPayDate, c - 1))), pendingInst.length > 1 && /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      variant: "outline",
+      onClick: () => openConfirm(pendingInst)
+    }, t.confirmAllInst, " (", pendingInst.length, ")")), ci.map(it => {
+      const late = it.status === "planned" && it.date < today;
+      return /*#__PURE__*/React.createElement("div", {
+        key: it.key,
+        style: {
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+          padding: "6px 0",
+          borderTop: `1px solid ${COLORS.line}`,
+          flexWrap: "wrap"
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          flex: 1,
+          minWidth: 110
+        }
+      }, /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontWeight: 600,
+          fontSize: 13
+        }
+      }, people[it.personId] || "—"), /*#__PURE__*/React.createElement("div", {
+        style: {
+          fontSize: 11.5,
+          color: late ? COLORS.rust : COLORS.inkSoft
+        }
+      }, it.kind === "COLLECT" ? t.collectOn : t.payOn, " · ", fmtDate(it.date), late ? ` · ${t.overdue}` : "")), /*#__PURE__*/React.createElement("div", {
+        className: "mono",
+        style: {
+          fontWeight: 600,
+          color: it.signed >= 0 ? COLORS.green : COLORS.rust
+        }
+      }, it.signed >= 0 ? "+" : "", fmt(it.signed)), /*#__PURE__*/React.createElement("div", {
+        style: {
+          display: "flex",
+          gap: 4,
+          alignItems: "center"
+        }
+      }, it.status === "confirmed" && /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 12,
+          color: COLORS.green,
+          fontWeight: 700
+        }
+      }, t.statusDone, " ✓"), it.status === "skipped" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("span", {
+        style: {
+          fontSize: 12,
+          color: COLORS.inkSoft
+        }
+      }, t.statusSkipped), /*#__PURE__*/React.createElement(Btn, {
+        small: true,
+        variant: "ghost",
+        onClick: () => toggleSkip(g.id, it.key)
+      }, t.unskip)), it.status === "planned" && /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement(Btn, {
+        small: true,
+        onClick: () => openConfirm([it])
+      }, t.confirm), /*#__PURE__*/React.createElement(Btn, {
+        small: true,
+        variant: "ghost",
+        onClick: () => toggleSkip(g.id, it.key)
+      }, t.skip))));
+    }));
+  }));
+}
+function DueSoonCard({
+  ctx
+}) {
+  const {
+    t,
+    data,
+    gameyaItemsAll,
+    openConfirm,
+    setPage,
+    displayFont
+  } = ctx;
+  if (!(data.gameyas || []).length) return null;
+  const people = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
+  const today = todayISO();
+  const horizon = addDaysISO(today, 7);
+  const due = gameyaItemsAll.filter(i => i.status === "planned" && i.date <= horizon).sort(sortEvents);
+  return /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: COLORS.paperCard,
+      border: `1px solid ${COLORS.line}`,
+      borderRadius: 12,
+      padding: "14px 18px",
+      marginBottom: 20
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: 8
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontWeight: 700,
+      fontSize: 13.5,
+      fontFamily: displayFont
+    }
+  }, t.dueSoon), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    variant: "ghost",
+    onClick: () => setPage("gameyas")
+  }, t.viewAll)), due.length === 0 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.inkSoft
+    }
+  }, t.nothingDue), due.slice(0, 6).map(it => {
+    const late = it.date < today;
+    return /*#__PURE__*/React.createElement("div", {
+      key: it.gameyaId + it.key,
+      style: {
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 8,
+        padding: "7px 0",
+        borderTop: `1px solid ${COLORS.line}`,
+        flexWrap: "wrap"
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        flex: 1,
+        minWidth: 120
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 600,
+        fontSize: 13
+      }
+    }, people[it.personId] || "—"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 11.5,
+        color: late ? COLORS.rust : COLORS.inkSoft
+      }
+    }, it.gameyaName, " · ", it.kind === "COLLECT" ? t.collectOn : t.payOn, " · ", fmtDate(it.date), late ? ` · ${t.overdue}` : "")), /*#__PURE__*/React.createElement("div", {
+      className: "mono",
+      style: {
+        fontWeight: 600,
+        color: it.signed >= 0 ? COLORS.green : COLORS.rust
+      }
+    }, it.signed >= 0 ? "+" : "", fmt(it.signed)), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      onClick: () => openConfirm([it])
+    }, t.confirm));
+  }), due.length > 6 && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 11.5,
+      color: COLORS.inkSoft,
+      marginTop: 6
+    }
+  }, "+", due.length - 6));
+}
+function GameyasPage({
+  ctx
+}) {
+  const {
+    t,
+    data,
+    ledger,
+    gameyaItemsAll,
+    displayFont
+  } = ctx;
+  const [tab, setTab] = useState("list");
+  const [form, setForm] = useState(null); // null | "new" | gameya object
+  const [detailId, setDetailId] = useState(null);
+  const gameyas = data.gameyas || [];
+  const people = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
+  const planned = gameyaItemsAll.filter(i => i.status === "planned");
+  const personIds = [...new Set(planned.map(i => i.personId))];
+  const forecasts = personIds.map(pid => ({
+    pid,
+    f: forecastPerson(ledger.cpBal[pid] || 0, gameyaItemsAll.filter(i => i.personId === pid))
+  })).sort((a, b) => a.f.min - b.f.min);
+  const totals = forecastTotals(Object.fromEntries(personIds.map(pid => [pid, ledger.cpBal[pid] || 0])), gameyaItemsAll);
+  const risky = totals.peak > 0;
+  return /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement(PageHeader, {
+    title: t.gameyas,
+    displayFont: displayFont,
+    action: /*#__PURE__*/React.createElement(Btn, {
+      onClick: () => setForm("new")
+    }, /*#__PURE__*/React.createElement(Plus, {
+      size: 15
+    }), t.newGameya)
+  }), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      marginBottom: 16
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    variant: tab === "list" ? "primary" : "outline",
+    onClick: () => setTab("list")
+  }, t.listTab), /*#__PURE__*/React.createElement(Btn, {
+    variant: tab === "forecast" ? "primary" : "outline",
+    onClick: () => setTab("forecast")
+  }, t.forecastTab)), tab === "list" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+      gap: 12
+    }
+  }, gameyas.map(g => {
+    const its = gameyaItemsAll.filter(i => i.gameyaId === g.id);
+    const done = its.filter(i => i.status !== "planned").length;
+    const next = its.filter(i => i.status === "planned").sort(sortEvents)[0];
+    const names = (g.members || []).map(m => `${people[m.personId] || "—"} (${m.turn})`).join(", ");
+    return /*#__PURE__*/React.createElement("div", {
+      key: g.id,
+      style: {
+        background: COLORS.paperCard,
+        border: `1px solid ${COLORS.line}`,
+        borderRadius: 12,
+        padding: 16
+      }
+    }, /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontWeight: 700
+      }
+    }, g.name), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12.5,
+        color: COLORS.inkSoft,
+        margin: "4px 0"
+      }
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "mono"
+    }, fmt(g.installment)), " × ", g.membersCount), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        color: COLORS.inkSoft,
+        marginBottom: 6
+      }
+    }, names), /*#__PURE__*/React.createElement("div", {
+      style: {
+        fontSize: 12,
+        marginBottom: 10,
+        color: COLORS.inkSoft
+      }
+    }, done, "/", its.length, " ", t.progressLabel, next ? ` · ${t.nextDue}: ${fmtDate(next.date)}` : ""), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        gap: 6
+      }
+    }, /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      variant: "outline",
+      onClick: () => setDetailId(g.id)
+    }, t.open), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      variant: "ghost",
+      onClick: () => setForm(g)
+    }, /*#__PURE__*/React.createElement(Pencil, {
+      size: 13
+    }))));
+  }), gameyas.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
+    text: t.noGameyas
+  })), tab === "forecast" && /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("div", {
+    style: {
+      background: risky ? COLORS.rustSoft : COLORS.greenSoft,
+      border: `1px solid ${risky ? COLORS.rust : COLORS.green}`,
+      borderRadius: 12,
+      padding: "12px 16px",
+      marginBottom: 14
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.inkSoft
+    }
+  }, t.peakTotal), /*#__PURE__*/React.createElement("div", {
+    className: "mono",
+    style: {
+      fontSize: 22,
+      fontWeight: 600,
+      color: risky ? COLORS.rust : COLORS.green
+    }
+  }, fmt(totals.peak)), risky && totals.peakDate && totals.peakDate !== "now" && /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12,
+      color: COLORS.inkSoft
+    }
+  }, fmtDate(totals.peakDate))), forecasts.map(x => /*#__PURE__*/React.createElement(ForecastCard, {
+    key: x.pid,
+    t: t,
+    name: people[x.pid] || "—",
+    f: x.f
+  })), forecasts.length === 0 && /*#__PURE__*/React.createElement(EmptyNote, {
+    text: t.nothingPlanned
+  })), form && /*#__PURE__*/React.createElement(GameyaForm, {
+    ctx: ctx,
+    initial: form === "new" ? null : form,
+    onClose: () => setForm(null)
+  }), detailId && /*#__PURE__*/React.createElement(GameyaDetail, {
+    ctx: ctx,
+    gameyaId: detailId,
+    onClose: () => setDetailId(null),
+    onEdit: () => {
+      const g = gameyas.find(x => x.id === detailId);
+      setDetailId(null);
+      if (g) setForm(g);
+    }
   }));
 }
 const root = ReactDOM.createRoot(document.getElementById("root"));
