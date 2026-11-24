@@ -258,6 +258,11 @@ const T = {
     errTurn: "Turn must be between 1 and the total members",
     errDupTurn: "Two people can't have the same turn",
     errDupPerson: "A person appears twice",
+    bulkOpenBtn: "Mark everything past as done",
+    bulkHint: "Every planned item dated up to this day is marked as skipped: it stays on the timeline as history and changes no balance. Anything you already confirmed is untouched.",
+    bulkUntil: "Up to (including) this date",
+    bulkCount: "items will be marked",
+    bulkApply: "Apply",
     backup: "Backup",
     exportBackup: "Export backup",
     importBackup: "Restore from backup",
@@ -434,6 +439,11 @@ const T = {
     errTurn: "الدور يجب أن يكون بين 1 وعدد الأعضاء",
     errDupTurn: "لا يمكن لشخصين أخذ نفس الدور",
     errDupPerson: "شخص مكرر",
+    bulkOpenBtn: "اعتبر كل ما فات تم",
+    bulkHint: "كل بند مخطط حتى هذا التاريخ سيُعلَّم «متخطى»: يبقى في الجدول كسجل فقط ولا يغيّر أي رصيد. وما أكدته من قبل لا يتغير.",
+    bulkUntil: "حتى هذا التاريخ (شامل)",
+    bulkCount: "بند سيتم تعليمه",
+    bulkApply: "تطبيق",
     backup: "نسخة احتياطية",
     exportBackup: "تصدير نسخة احتياطية",
     importBackup: "استعادة من نسخة احتياطية",
@@ -1336,6 +1346,37 @@ function App() {
       })
     }));
   };
+  // "Everything up to this date is already handled": marks every still-PLANNED item of
+  // one gam'eya dated on/before the cutoff as skipped. It never touches confirmed items
+  // and never creates a transaction, so no balance can change.
+  const markHandledUntil = (gameyaId, untilISO) => {
+    if (!isoOk(untilISO)) return;
+    setData(d => {
+      const live = new Set(d.transactions.filter(tr => !tr.deleted).map(tr => tr.id));
+      return {
+        ...d,
+        gameyas: (d.gameyas || []).map(g => {
+          if (g.id !== gameyaId) return g;
+          const skipped = {
+            ...(g.skipped || {})
+          };
+          gameyaItems(g, live).forEach(i => {
+            if (i.status === "planned" && i.date <= untilISO) skipped[i.key] = true;
+          });
+          return {
+            ...g,
+            skipped
+          };
+        })
+      };
+    });
+    pushAudit({
+      action: "edited",
+      entityType: "gameya",
+      entityId: gameyaId,
+      label: "handled until " + untilISO
+    });
+  };
   // Creates the real transactions AND links them to their plan items in ONE state
   // update, so a plan item can never say "done" without its transaction existing.
   const confirmGameyaItems = entries => {
@@ -1547,7 +1588,8 @@ function App() {
     toggleSkip,
     confirmGameyaItems,
     openConfirm: setConfirmItems,
-    setPage
+    setPage,
+    markHandledUntil
   };
   return /*#__PURE__*/React.createElement("div", {
     dir: dir,
@@ -3919,12 +3961,16 @@ function GameyaDetail({
     openConfirm,
     toggleSkip,
     deleteGameya,
+    markHandledUntil,
     displayFont
   } = ctx;
+  const [bulkOpen, setBulkOpen] = useState(false);
+  const [bulkDate, setBulkDate] = useState(addDaysISO(todayISO(), -1));
   const g = (data.gameyas || []).find(x => x.id === gameyaId);
   if (!g) return null;
   const people = Object.fromEntries(data.counterparties.map(p => [p.id, p.name]));
   const items = gameyaItemsAll.filter(i => i.gameyaId === g.id);
+  const bulkCount = isoOk(bulkDate) ? items.filter(i => i.status === "planned" && i.date <= bulkDate).length : 0;
   const N = Number(g.membersCount) || 0;
   const cycles = Array.from({
     length: N
@@ -3949,7 +3995,8 @@ function GameyaDetail({
     style: {
       display: "flex",
       gap: 8,
-      marginBottom: 14
+      marginBottom: 14,
+      flexWrap: "wrap"
     }
   }, /*#__PURE__*/React.createElement(Btn, {
     small: true,
@@ -3958,6 +4005,10 @@ function GameyaDetail({
   }, /*#__PURE__*/React.createElement(Pencil, {
     size: 13
   }), t.edit), /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    variant: "outline",
+    onClick: () => setBulkOpen(o => !o)
+  }, t.bulkOpenBtn), /*#__PURE__*/React.createElement(Btn, {
     small: true,
     variant: "danger",
     onClick: () => {
@@ -3968,7 +4019,50 @@ function GameyaDetail({
     }
   }, /*#__PURE__*/React.createElement(Trash2, {
     size: 13
-  }), t.delete)), cycles.map(c => {
+  }), t.delete)), bulkOpen && /*#__PURE__*/React.createElement("div", {
+    style: {
+      border: `1px solid ${COLORS.line}`,
+      borderRadius: 10,
+      padding: 10,
+      marginBottom: 14,
+      background: COLORS.paper
+    }
+  }, /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.inkSoft,
+      marginBottom: 8
+    }
+  }, t.bulkHint), /*#__PURE__*/React.createElement(Field, {
+    label: t.bulkUntil
+  }, /*#__PURE__*/React.createElement("input", {
+    type: "date",
+    style: inputStyle,
+    value: bulkDate,
+    onChange: e => setBulkDate(e.target.value)
+  })), /*#__PURE__*/React.createElement("div", {
+    style: {
+      fontSize: 12.5,
+      fontWeight: 600,
+      marginBottom: 10
+    }
+  }, bulkCount, " ", t.bulkCount), /*#__PURE__*/React.createElement("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "flex-end"
+    }
+  }, /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    variant: "outline",
+    onClick: () => setBulkOpen(false)
+  }, t.cancel), bulkCount > 0 && /*#__PURE__*/React.createElement(Btn, {
+    small: true,
+    onClick: () => {
+      markHandledUntil(g.id, bulkDate);
+      setBulkOpen(false);
+    }
+  }, t.bulkApply))), cycles.map(c => {
     const ci = items.filter(i => i.cycle === c);
     if (!ci.length) return null;
     const pendingInst = ci.filter(i => i.kind === "INST" && i.status === "planned");
