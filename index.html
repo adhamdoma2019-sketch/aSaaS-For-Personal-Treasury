@@ -8,6 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 <meta name="apple-mobile-web-app-title" content="Treasury" />
 <meta name="theme-color" content="#1B2430" />
+<meta name="robots" content="noindex, nofollow" />
+<meta name="referrer" content="no-referrer" />
 <link rel="apple-touch-icon" href="icon.png?v=2" />
 <link rel="icon" href="icon.png?v=2" />
 
@@ -84,6 +86,7 @@ const ArchiveRestore = makeIcon("♻");
 const X = makeIcon("✕");
 const History = makeIcon("🕒");
 const Filter = makeIcon("▾");
+const Link2 = makeIcon("🔗");
 const CalendarDays = makeIcon("📅");
 
 /* ============================================================
@@ -173,6 +176,20 @@ const T = {
     createdAt: "Created",
     actions: "Actions",
     close: "Close",
+    shareLink: "Personal link",
+    shareIntro: "A private, read-only page for this person: balance, statement and gam'eya schedule. Anyone who has the link can see it.",
+    shareNote: "Notes you write on transactions are visible to them. Other people's names are not shown.",
+    shareCreate: "Create link",
+    shareCopy: "Copy link",
+    shareCopied: "Copied ✓",
+    shareSend: "Share",
+    shareRegen: "New link (old one stops working)",
+    shareOff: "Turn off link",
+    shareRegenConfirm: "Create a new link? The old link will stop working immediately.",
+    shareOffConfirm: "Turn off this link? It will stop working immediately.",
+    shareRevokeFail: "Could not switch the old link off. Check your connection and try again.",
+    shareSyncErr: "Could not update the shared page. It will retry on your next change.",
+    shareOn: "Link on",
     warnArchive: "This person has a non-zero balance. Archive anyway?",
     warnDeleteAccount: "This account has transactions and cannot be deleted. You can rename it instead.",
     printStatement: "Print / Save as PDF",
@@ -207,7 +224,7 @@ const T = {
     installment: "Monthly installment",
     membersCount: "Total members in the gam'eya",
     firstPayDate: "First payment date",
-    collectDay: "Payout day (of the following month)",
+    collectDay: "Payout day (same day as the installment, or the next one that comes)",
     trackedMembers: "People from your treasury in this gam'eya",
     turnHint: "For each person, type the month number they collect in.",
     addMember: "Add person",
@@ -354,6 +371,20 @@ const T = {
     createdAt: "تاريخ الإنشاء",
     actions: "إجراءات",
     close: "إغلاق",
+    shareLink: "رابط شخصي",
+    shareIntro: "صفحة خاصة للاطلاع فقط لهذا الشخص: الرصيد وكشف الحساب وجدول الجمعية. أي شخص معه الرابط يقدر يشوفها.",
+    shareNote: "الملاحظات اللي بتكتبها على المعاملات بتظهر له. أسماء الأشخاص الآخرين مش بتظهر.",
+    shareCreate: "إنشاء الرابط",
+    shareCopy: "نسخ الرابط",
+    shareCopied: "تم النسخ ✓",
+    shareSend: "مشاركة",
+    shareRegen: "رابط جديد (القديم يتوقف)",
+    shareOff: "إيقاف الرابط",
+    shareRegenConfirm: "تنشئ رابط جديد؟ الرابط القديم هيتوقف فوراً.",
+    shareOffConfirm: "توقف الرابط ده؟ هيتوقف فوراً.",
+    shareRevokeFail: "تعذّر إيقاف الرابط القديم. تأكد من الاتصال وحاول تاني.",
+    shareSyncErr: "تعذّر تحديث الصفحة المشتركة. هتتحاول تاني مع أول تعديل.",
+    shareOn: "الرابط شغّال",
     warnArchive: "لدى هذا الشخص رصيد غير صفري. هل تريد الأرشفة على أي حال؟",
     warnDeleteAccount: "هذا الحساب يحتوي على معاملات ولا يمكن حذفه. يمكنك إعادة تسميته بدلاً من ذلك.",
     printStatement: "طباعة / حفظ كـ PDF",
@@ -388,7 +419,7 @@ const T = {
     installment: "القسط الشهري",
     membersCount: "إجمالي عدد الأعضاء في الجمعية",
     firstPayDate: "تاريخ أول قسط",
-    collectDay: "يوم القبض (في الشهر التالي)",
+    collectDay: "يوم القبض (نفس يوم القسط أو أقرب يوم بعده)",
     trackedMembers: "الأشخاص الموجودون عندك في الجمعية",
     turnHint: "اكتب لكل شخص رقم الشهر الذي يقبض فيه.",
     addMember: "إضافة شخص",
@@ -534,7 +565,11 @@ function gameyaItems(g, liveTxIds) {
     for (let c = 1; c <= N; c++) {
       const isTurn = c === Number(m.turn);
       const key = `${m.id}:${c}:${isTurn ? "C" : "I"}`;
-      const date = isTurn ? addMonthsISO(g.firstPayDate, c, Number(g.collectDay) || 1) : addMonthsISO(g.firstPayDate, c - 1);
+      const payDate = addMonthsISO(g.firstPayDate, c - 1);
+      const cd = Number(g.collectDay) || 1;
+      // Payout = the first collectDay that falls on or after this cycle's pay day
+      // (pay 25th + payout 1st => 1st of next month; pay 1st + payout 1st => the same day).
+      const date = isTurn ? addMonthsISO(g.firstPayDate, cd >= Number(payDate.slice(8, 10)) ? c - 1 : c, cd) : payDate;
       const amount = isTurn ? (N - 1) * inst : inst;
       const conf = g.confirmations && g.confirmations[key];
       let status = "planned";
@@ -619,6 +654,96 @@ function forecastTotals(startBalances, items) {
   return {
     peak,
     peakDate
+  };
+}
+
+/* ============================================================
+   PERSONAL READ-ONLY LINK: snapshot builder (pure, unit-tested)
+   The snapshot is the ONLY thing published for a person. It never
+   contains other people's names, account names, or the main document.
+   ============================================================ */
+function newShareToken() {
+  const a = new Uint8Array(32);
+  (typeof crypto !== "undefined" ? crypto : window.crypto).getRandomValues(a);
+  let b = "";
+  a.forEach(x => {
+    b += String.fromCharCode(x);
+  });
+  return btoa(b).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function shareUrl(token) {
+  const l = window.location;
+  return l.origin + l.pathname + "#s=" + token;
+}
+const round2 = n => Math.round(n * 100) / 100;
+function personStatementRows(transactions, personId) {
+  const live = transactions.filter(tr => !tr.deleted);
+  const sorted = [...live].sort((a, b) => a.txDate < b.txDate ? -1 : a.txDate > b.txDate ? 1 : 0);
+  let running = 0;
+  const rows = [];
+  for (const tr of sorted) {
+    const amt = Number(tr.amount) || 0;
+    const fee = Number(tr.feeAmount) || 0;
+    let delta = null;
+    let kind = "";
+    if (tr.type === "IN" && tr.counterpartyId === personId) {
+      delta = amt;
+      kind = "IN";
+    } else if (tr.type === "OUT" && tr.counterpartyId === personId) {
+      delta = -amt - (tr.feeBearerType === "self" ? fee : 0);
+      kind = "OUT";
+    } else if (tr.type === "OUT" && fee > 0 && tr.feeBearerType === "other" && tr.feeBearerCounterpartyId === personId) {
+      delta = -fee;
+      kind = "FEE_OTHER";
+    } else if (tr.type === "P2P" && tr.counterpartyId === personId) {
+      delta = -amt - (tr.feeBearerType === "self" ? fee : 0);
+      kind = "P2P_OUT";
+    } else if (tr.type === "P2P" && tr.toCounterpartyId === personId) {
+      delta = tr.feeBearerType === "receiver" ? amt - fee : amt;
+      kind = "P2P_IN";
+    } else if (tr.type === "LOSS_ALLOC" && tr.counterpartyId === personId) {
+      delta = -amt;
+      kind = "FEE_ALLOC";
+    }
+    if (delta === null) continue;
+    running += delta;
+    rows.push({
+      date: tr.txDate,
+      kind,
+      delta: round2(delta),
+      running: round2(running),
+      note: tr.note || ""
+    });
+  }
+  return rows;
+}
+function buildShareSnapshot(data, person, ownerUid, lang, balance) {
+  const rows = personStatementRows(data.transactions || [], person.id);
+  const live = new Set((data.transactions || []).filter(t => !t.deleted).map(t => t.id));
+  const gameyas = (data.gameyas || []).filter(g => !g.archived).map(g => {
+    const items = gameyaItems(g, live).filter(i => i.personId === person.id);
+    if (!items.length) return null;
+    return {
+      name: g.name,
+      installment: Number(g.installment) || 0,
+      members: Number(g.membersCount) || 0,
+      items: items.map(i => ({
+        cycle: i.cycle,
+        total: i.total,
+        kind: i.kind,
+        date: i.date,
+        amount: i.amount,
+        status: i.status
+      }))
+    };
+  }).filter(Boolean);
+  return {
+    ownerUid: ownerUid || null,
+    personName: person.name,
+    lang: lang || "en",
+    balance: round2(balance || 0),
+    rows,
+    gameyas
   };
 }
 /* GAMEYA-HELPERS-END */
@@ -1047,6 +1172,36 @@ function App() {
   const displayFont = lang === "ar" ? "'Cairo', sans-serif" : "'Fraunces', serif";
   const bodyFont = lang === "ar" ? "'Cairo', sans-serif" : "'Inter', sans-serif";
   const ledger = useMemo(() => computeLedger(data.transactions), [data.transactions]);
+  const publishedRef = React.useRef({});
+  const [shareSyncError, setShareSyncError] = useState(false);
+  useEffect(() => {
+    // Keeps every enabled personal page in step with the books. Only runs after a
+    // successful load, only writes when a snapshot really changed.
+    if (!hasLoaded || loadError) return;
+    const shared = data.counterparties.filter(p => p.shareToken);
+    if (!shared.length) return;
+    const timer = setTimeout(async () => {
+      let failed = false;
+      for (const p of shared) {
+        const snap = buildShareSnapshot(data, p, currentUid, data.lang || "en", ledger.cpBal[p.id] || 0);
+        const key = JSON.stringify(snap);
+        if (publishedRef.current[p.shareToken] === key) continue;
+        try {
+          await firebase.firestore().collection("shares").doc(p.shareToken).set({
+            ...snap,
+            updatedAt: new Date().toISOString()
+          });
+          publishedRef.current[p.shareToken] = key;
+        } catch (e) {
+          console.error("Share publish failed", e);
+          failed = true;
+        }
+      }
+      setShareSyncError(failed);
+    }, 1200);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, hasLoaded, loadError, ledger]);
   const gameyaItemsAll = useMemo(() => allGameyaItems(data.gameyas, data.transactions), [data.gameyas, data.transactions]);
   const totalAccounts = Object.values(ledger.accountBal).reduce((a, b) => a + b, 0);
   const totalCounterparties = Object.values(ledger.cpBal).reduce((a, b) => a + b, 0);
@@ -1284,6 +1439,58 @@ function App() {
       entityId: id,
       label: name
     });
+  };
+
+    const setShareToken = (id, token) => {
+    setData(d => ({
+      ...d,
+      counterparties: d.counterparties.map(p => p.id === id ? {
+        ...p,
+        shareToken: token
+      } : p)
+    }));
+    pushAudit({
+      action: "edited",
+      entityType: "person",
+      entityId: id,
+      label: token ? "share link on" : "share link off"
+    });
+  };
+  // Revoking overwrites the public document with a tombstone (rather than deleting it),
+  // so it works even if the document was never created, and the old link shows "invalid".
+  const revokeShareToken = async token => {
+    await firebase.firestore().collection("shares").doc(token).set({
+      ownerUid: currentUid,
+      revoked: true
+    });
+    delete publishedRef.current[token];
+  };
+  const enableShare = id => setShareToken(id, newShareToken());
+  const disableShare = async id => {
+    const p = data.counterparties.find(x => x.id === id);
+    if (p && p.shareToken) {
+      try {
+        await revokeShareToken(p.shareToken);
+      } catch (e) {
+        console.error("Revoke failed", e);
+        window.alert(t.shareRevokeFail);
+        return;
+      }
+    }
+    setShareToken(id, null);
+  };
+  const regenShare = async id => {
+    const p = data.counterparties.find(x => x.id === id);
+    if (p && p.shareToken) {
+      try {
+        await revokeShareToken(p.shareToken);
+      } catch (e) {
+        console.error("Revoke failed", e);
+        window.alert(t.shareRevokeFail);
+        return;
+      }
+    }
+    setShareToken(id, newShareToken());
   };
 
   /* ---------- Gam'eyas ---------- */
@@ -1589,7 +1796,11 @@ function App() {
     confirmGameyaItems,
     openConfirm: setConfirmItems,
     setPage,
-    markHandledUntil
+    markHandledUntil,
+    enableShare,
+    disableShare,
+    regenShare,
+    shareSyncError
   };
   return /*#__PURE__*/React.createElement("div", {
     dir: dir,
@@ -2531,6 +2742,7 @@ function PeoplePage({
     setStatementPerson,
     displayFont
   } = ctx;
+  const [sharing, setSharing] = useState(null);
   const [modal, setModal] = useState(false);
   const [name, setName] = useState("");
   const [editing, setEditing] = useState(null);
@@ -2602,7 +2814,7 @@ function PeoplePage({
       style: {
         fontWeight: 700
       }
-    }, p.name), p.archived && /*#__PURE__*/React.createElement(Archive, {
+    }, p.name, p.shareToken ? " 🔗" : null), p.archived && /*#__PURE__*/React.createElement(Archive, {
       size: 14,
       color: COLORS.inkSoft
     })), /*#__PURE__*/React.createElement("div", {
@@ -2630,6 +2842,12 @@ function PeoplePage({
       variant: "outline",
       onClick: () => setStatementPerson(p)
     }, t.statement), /*#__PURE__*/React.createElement(Btn, {
+      small: true,
+      variant: "outline",
+      onClick: () => setSharing(p.id)
+    }, /*#__PURE__*/React.createElement(Link2, {
+      size: 13
+    }), t.shareLink), /*#__PURE__*/React.createElement(Btn, {
       small: true,
       variant: "ghost",
       onClick: () => {
@@ -2672,7 +2890,131 @@ function PeoplePage({
     onClick: () => setModal(false)
   }, t.cancel), /*#__PURE__*/React.createElement(Btn, {
     onClick: submit
-  }, t.save))));
+  }, t.save))), sharing && /*#__PURE__*/React.createElement(ShareModal, {
+    ctx: ctx,
+    personId: sharing,
+    onClose: () => setSharing(null)
+  }));
+}
+
+/* ============================================================
+   PERSONAL LINK MODAL (treasurer side)
+   ============================================================ */
+function ShareModal({
+  ctx,
+  personId,
+  onClose
+}) {
+  const ce = React.createElement;
+  const {
+    t,
+    data,
+    displayFont,
+    enableShare,
+    disableShare,
+    regenShare,
+    shareSyncError
+  } = ctx;
+  const [copied, setCopied] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const p = data.counterparties.find(x => x.id === personId);
+  if (!p) return null;
+  const url = p.shareToken ? shareUrl(p.shareToken) : "";
+  const copy = () => {
+    const done = () => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(done).catch(() => {});else done();
+  };
+  const send = () => {
+    if (navigator.share) navigator.share({
+      title: p.name,
+      url
+    }).catch(() => {});else copy();
+  };
+  const guarded = fn => async () => {
+    setBusy(true);
+    try {
+      await fn();
+    } finally {
+      setBusy(false);
+    }
+  };
+  return ce(Modal, {
+    title: `${t.shareLink} — ${p.name}`,
+    onClose,
+    displayFont
+  }, ce("div", {
+    style: {
+      fontSize: 13,
+      color: COLORS.inkSoft,
+      lineHeight: 1.6,
+      marginBottom: 12
+    }
+  }, t.shareIntro), !p.shareToken ? ce("div", {
+    style: {
+      display: "flex",
+      justifyContent: "flex-end"
+    }
+  }, ce(Btn, {
+    onClick: () => enableShare(p.id)
+  }, t.shareCreate)) : ce("div", null, ce("input", {
+    readOnly: true,
+    dir: "ltr",
+    value: url,
+    onFocus: e => e.target.select(),
+    style: {
+      ...inputStyle,
+      fontSize: 12,
+      marginBottom: 10
+    }
+  }), ce("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      flexWrap: "wrap",
+      marginBottom: 12
+    }
+  }, ce(Btn, {
+    onClick: copy
+  }, copied ? t.shareCopied : t.shareCopy), ce(Btn, {
+    variant: "outline",
+    onClick: send
+  }, t.shareSend)), shareSyncError && ce("div", {
+    style: {
+      fontSize: 12.5,
+      color: COLORS.rust,
+      background: COLORS.rustSoft,
+      borderRadius: 8,
+      padding: "8px 10px",
+      marginBottom: 12
+    }
+  }, t.shareSyncErr), ce("div", {
+    style: {
+      fontSize: 12,
+      color: COLORS.inkSoft,
+      marginBottom: 14
+    }
+  }, t.shareNote), ce("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      flexWrap: "wrap"
+    }
+  }, ce(Btn, {
+    small: true,
+    variant: "outline",
+    onClick: guarded(async () => {
+      if (window.confirm(t.shareRegenConfirm)) await regenShare(p.id);
+    })
+  }, t.shareRegen), ce(Btn, {
+    small: true,
+    variant: "ghost",
+    onClick: guarded(async () => {
+      if (window.confirm(t.shareOffConfirm)) await disableShare(p.id);
+    })
+  }, t.shareOff))));
 }
 
 /* ============================================================
@@ -4401,8 +4743,364 @@ function GameyasPage({
     }
   }));
 }
+/* ============================================================
+   SHARED PAGE (person side): public, read-only, no sign-in.
+   Reads exactly one document: shares/{token}.
+   ============================================================ */
+const SV = {
+  en: {
+    appName: "Treasury",
+    loading: "Loading…",
+    invalid: "This link is no longer valid.",
+    error: "Couldn't load. Check your connection and try again.",
+    retry: "Try again",
+    updated: "Updated",
+    inFavor: "Your balance with us",
+    youOwe: "Amount you owe",
+    settled: "Settled",
+    statement: "Statement",
+    noTx: "No transactions yet.",
+    gameya: "Gam'eya schedule",
+    cycle: "Cycle",
+    installment: "Installment",
+    payout: "Payout",
+    perMonth: "per month",
+    upcoming: "Upcoming",
+    done: "Done",
+    handled: "Settled",
+    showDone: "Show completed",
+    hideDone: "Hide completed",
+    nothingUpcoming: "Nothing upcoming.",
+    switchLang: "عربي",
+    IN: "Money in",
+    OUT: "Money out",
+    FEE_OTHER: "Fee",
+    P2P_OUT: "Transfer out",
+    P2P_IN: "Transfer in",
+    FEE_ALLOC: "Fee allocation"
+  },
+  ar: {
+    appName: "الخزينة",
+    loading: "جاري التحميل…",
+    invalid: "هذا الرابط لم يعد صالحاً.",
+    error: "تعذّر التحميل. تأكد من الاتصال وحاول مرة أخرى.",
+    retry: "حاول مرة أخرى",
+    updated: "آخر تحديث",
+    inFavor: "رصيدك لدينا",
+    youOwe: "المبلغ المطلوب منك",
+    settled: "الحساب متسوّى",
+    statement: "كشف الحساب",
+    noTx: "لا توجد معاملات بعد.",
+    gameya: "جدول الجمعية",
+    cycle: "الدور",
+    installment: "قسط",
+    payout: "قبض",
+    perMonth: "شهرياً",
+    upcoming: "قادم",
+    done: "تم",
+    handled: "مُسوّى",
+    showDone: "إظهار المكتمل",
+    hideDone: "إخفاء المكتمل",
+    nothingUpcoming: "لا يوجد شيء قادم.",
+    switchLang: "English",
+    IN: "إيداع",
+    OUT: "سحب",
+    FEE_OTHER: "رسوم",
+    P2P_OUT: "تحويل صادر",
+    P2P_IN: "تحويل وارد",
+    FEE_ALLOC: "توزيع رسوم"
+  }
+};
+function ShareView({
+  token
+}) {
+  const ce = React.createElement;
+  useFonts();
+  const [state, setState] = useState({
+    status: "loading"
+  });
+  const [lang, setLang] = useState(null);
+  const [showDone, setShowDone] = useState({});
+  const load = useCallback(() => {
+    setState({
+      status: "loading"
+    });
+    firebase.firestore().collection("shares").doc(token).get().then(snap => {
+      const d = snap.exists ? snap.data() : null;
+      if (!d || d.revoked) setState({
+        status: "invalid"
+      });else setState({
+        status: "ok",
+        d
+      });
+    }).catch(e => {
+      console.error("Share load failed", e);
+      setState({
+        status: "error"
+      });
+    });
+  }, [token]);
+  useEffect(() => {
+    load();
+  }, [load]);
+  const d = state.d;
+  const L = lang || (d && d.lang) || ((navigator.language || "").startsWith("ar") ? "ar" : "en");
+  const v = SV[L];
+  const dir = L === "ar" ? "rtl" : "ltr";
+  const displayFont = L === "ar" ? "'Cairo', sans-serif" : "'Fraunces', serif";
+  const bodyFont = L === "ar" ? "'Cairo', sans-serif" : "'Inter', sans-serif";
+  const card = {
+    background: COLORS.paperCard,
+    border: `1px solid ${COLORS.line}`,
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 14
+  };
+  const sectionTitle = txt => ce("div", {
+    style: {
+      fontFamily: displayFont,
+      fontSize: 18,
+      fontWeight: 700,
+      margin: "22px 0 10px"
+    }
+  }, txt);
+  const sign = n => (n >= 0 ? "+" : "−") + fmt(Math.abs(n));
+  let body = null;
+  if (state.status === "loading") body = ce("div", {
+    style: {
+      ...card,
+      color: COLORS.inkSoft
+    }
+  }, v.loading);else if (state.status === "invalid") body = ce("div", {
+    style: card
+  }, v.invalid);else if (state.status === "error") body = ce("div", {
+    style: card
+  }, ce("div", {
+    style: {
+      marginBottom: 12
+    }
+  }, v.error), ce("button", {
+    onClick: load,
+    style: {
+      padding: "9px 16px",
+      borderRadius: 8,
+      border: "none",
+      background: COLORS.ink,
+      color: "#fff",
+      fontWeight: 600
+    }
+  }, v.retry));else {
+    const bal = Number(d.balance) || 0;
+    const settled = Math.abs(bal) < 0.01;
+    const color = settled ? COLORS.inkSoft : bal > 0 ? COLORS.green : COLORS.rust;
+    const rows = [...(d.rows || [])].reverse();
+    body = ce("div", null, ce("h1", {
+      style: {
+        fontFamily: displayFont,
+        fontSize: 26,
+        margin: "8px 0 14px"
+      }
+    }, d.personName), ce("div", {
+      style: {
+        ...card,
+        background: settled ? COLORS.paperCard : bal > 0 ? COLORS.greenSoft : COLORS.rustSoft
+      }
+    }, ce("div", {
+      style: {
+        fontSize: 13,
+        color
+      }
+    }, settled ? v.settled : bal > 0 ? v.inFavor : v.youOwe), ce("div", {
+      className: "mono",
+      style: {
+        fontSize: 34,
+        fontWeight: 600,
+        color,
+        margin: "4px 0"
+      }
+    }, fmt(Math.abs(bal))), d.updatedAt && ce("div", {
+      style: {
+        fontSize: 11.5,
+        color: COLORS.inkSoft
+      }
+    }, v.updated, ": ", new Date(d.updatedAt).toLocaleString())), sectionTitle(v.statement), rows.length === 0 ? ce("div", {
+      style: {
+        ...card,
+        color: COLORS.inkSoft
+      }
+    }, v.noTx) : ce("div", {
+      style: {
+        ...card,
+        padding: "4px 14px"
+      }
+    }, rows.map((r, i) => ce("div", {
+      key: i,
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        gap: 12,
+        padding: "11px 0",
+        borderBottom: i < rows.length - 1 ? `1px solid ${COLORS.line}` : "none"
+      }
+    }, ce("div", {
+      style: {
+        minWidth: 0
+      }
+    }, ce("div", {
+      style: {
+        fontWeight: 600,
+        fontSize: 14
+      }
+    }, v[r.kind] || r.kind), ce("div", {
+      style: {
+        fontSize: 12,
+        color: COLORS.inkSoft
+      }
+    }, fmtDate(r.date)), r.note ? ce("div", {
+      style: {
+        fontSize: 12,
+        color: COLORS.inkSoft,
+        marginTop: 2,
+        overflowWrap: "anywhere"
+      }
+    }, r.note) : null), ce("div", {
+      style: {
+        textAlign: "end",
+        flexShrink: 0
+      }
+    }, ce("div", {
+      className: "mono",
+      style: {
+        fontWeight: 600,
+        fontSize: 14,
+        color: r.delta >= 0 ? COLORS.green : COLORS.rust
+      }
+    }, sign(r.delta)), ce("div", {
+      className: "mono",
+      style: {
+        fontSize: 11.5,
+        color: COLORS.inkSoft
+      }
+    }, fmt(r.running)))))), (d.gameyas || []).length > 0 && sectionTitle(v.gameya), (d.gameyas || []).map((g, gi) => {
+      const open = !!showDone[gi];
+      const items = [...g.items].sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
+      const upcoming = items.filter(i => i.status === "planned");
+      const past = items.filter(i => i.status !== "planned");
+      const shown = open ? items : upcoming;
+      return ce("div", {
+        key: gi,
+        style: card
+      }, ce("div", {
+        style: {
+          fontWeight: 700,
+          fontSize: 15
+        }
+      }, g.name), ce("div", {
+        style: {
+          fontSize: 12,
+          color: COLORS.inkSoft,
+          marginBottom: 6
+        }
+      }, ce("span", {
+        className: "mono"
+      }, fmt(g.installment)), " ", v.perMonth), shown.length === 0 && ce("div", {
+        style: {
+          fontSize: 13,
+          color: COLORS.inkSoft,
+          padding: "6px 0"
+        }
+      }, v.nothingUpcoming), shown.map(i => ce("div", {
+        key: i.cycle + i.kind,
+        style: {
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 10,
+          padding: "8px 0",
+          borderTop: `1px solid ${COLORS.line}`,
+          opacity: i.status === "planned" ? 1 : 0.6
+        }
+      }, ce("div", null, ce("div", {
+        style: {
+          fontSize: 13.5,
+          fontWeight: 600
+        }
+      }, i.kind === "COLLECT" ? v.payout : v.installment, " · ", v.cycle, " ", i.cycle, "/", i.total), ce("div", {
+        style: {
+          fontSize: 12,
+          color: COLORS.inkSoft
+        }
+      }, fmtDate(i.date), " · ", i.status === "planned" ? v.upcoming : i.status === "confirmed" ? v.done : v.handled)), ce("div", {
+        className: "mono",
+        style: {
+          fontWeight: 600,
+          fontSize: 14,
+          color: i.kind === "COLLECT" ? COLORS.green : COLORS.rust
+        }
+      }, sign(i.kind === "COLLECT" ? i.amount : -i.amount)))), past.length > 0 && ce("button", {
+        onClick: () => setShowDone(s => ({
+          ...s,
+          [gi]: !s[gi]
+        })),
+        style: {
+          marginTop: 8,
+          background: "none",
+          border: "none",
+          color: COLORS.inkSoft,
+          fontSize: 12.5,
+          textDecoration: "underline",
+          padding: 0
+        }
+      }, open ? v.hideDone : v.showDone));
+    }));
+  }
+  return ce("div", {
+    dir,
+    style: {
+      fontFamily: bodyFont,
+      background: COLORS.paper,
+      minHeight: "100vh",
+      color: COLORS.ink,
+      padding: "16px 16px 40px"
+    }
+  }, ce("style", null, `
+        * { box-sizing: border-box; }
+        .mono { font-family: 'IBM Plex Mono', monospace; font-variant-numeric: tabular-nums; direction: ltr; unicode-bidi: isolate; }
+        button { font-family: inherit; }
+      `), ce("div", {
+    style: {
+      maxWidth: 560,
+      margin: "0 auto"
+    }
+  }, ce("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center"
+    }
+  }, ce("div", {
+    style: {
+      fontFamily: displayFont,
+      fontWeight: 700,
+      fontSize: 15,
+      color: COLORS.inkSoft
+    }
+  }, v.appName), ce("button", {
+    onClick: () => setLang(L === "ar" ? "en" : "ar"),
+    style: {
+      border: `1px solid ${COLORS.line}`,
+      background: COLORS.paperCard,
+      borderRadius: 8,
+      padding: "6px 12px",
+      fontSize: 13
+    }
+  }, v.switchLang)), body));
+}
 const root = ReactDOM.createRoot(document.getElementById("root"));
-root.render(/*#__PURE__*/React.createElement(AuthGate, null, /*#__PURE__*/React.createElement(App, null)));
+const shareMatch = /^#s=([A-Za-z0-9_-]{20,128})$/.exec(window.location.hash || "");
+root.render(shareMatch ? /*#__PURE__*/React.createElement(ShareView, {
+  token: shareMatch[1]
+}) : /*#__PURE__*/React.createElement(AuthGate, null, /*#__PURE__*/React.createElement(App, null)));
 </script>
 </body>
 </html>
