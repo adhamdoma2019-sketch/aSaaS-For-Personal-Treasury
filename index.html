@@ -190,6 +190,19 @@ const T = {
     shareRevokeFail: "Could not switch the old link off. Check your connection and try again.",
     shareSyncErr: "Could not update the shared page. It will retry on your next change.",
     shareOn: "Link on",
+    reqTitle: "Withdrawal requests",
+    reqReview: "Review",
+    reqApprove: "Approve & record",
+    reqReject: "Reject",
+    reqRejectConfirm: "Reject this request?",
+    reqCash: "Cash",
+    reqTransfer: "Transfer",
+    reqRequested: "Requested amount",
+    reqDetails: "Transfer details",
+    reqBalance: "Current balance",
+    reqNote: "Withdrawal request",
+    reqFail: "Could not update the request. Check your connection and try again.",
+    reqPendingWarn: "This person has {n} pending withdrawal request(s) that will no longer be visible. Review them first.",
     warnArchive: "This person has a non-zero balance. Archive anyway?",
     warnDeleteAccount: "This account has transactions and cannot be deleted. You can rename it instead.",
     printStatement: "Print / Save as PDF",
@@ -385,6 +398,19 @@ const T = {
     shareRevokeFail: "تعذّر إيقاف الرابط القديم. تأكد من الاتصال وحاول تاني.",
     shareSyncErr: "تعذّر تحديث الصفحة المشتركة. هتتحاول تاني مع أول تعديل.",
     shareOn: "الرابط شغّال",
+    reqTitle: "طلبات السحب",
+    reqReview: "مراجعة",
+    reqApprove: "موافقة وتسجيل",
+    reqReject: "رفض",
+    reqRejectConfirm: "ترفض الطلب ده؟",
+    reqCash: "كاش",
+    reqTransfer: "تحويل",
+    reqRequested: "المبلغ المطلوب",
+    reqDetails: "بيانات التحويل",
+    reqBalance: "الرصيد الحالي",
+    reqNote: "طلب سحب",
+    reqFail: "تعذّر تحديث الطلب. تأكد من الاتصال وحاول تاني.",
+    reqPendingWarn: "الشخص ده عنده {n} طلب سحب قيد المراجعة هيختفوا. راجعهم الأول.",
     warnArchive: "لدى هذا الشخص رصيد غير صفري. هل تريد الأرشفة على أي حال؟",
     warnDeleteAccount: "هذا الحساب يحتوي على معاملات ولا يمكن حذفه. يمكنك إعادة تسميته بدلاً من ذلك.",
     printStatement: "طباعة / حفظ كـ PDF",
@@ -717,7 +743,7 @@ function personStatementRows(transactions, personId) {
   }
   return rows;
 }
-function buildShareSnapshot(data, person, ownerUid, lang, balance) {
+function buildShareSnapshot(data, person, ownerUid, lang, balance, requests) {
   const rows = personStatementRows(data.transactions || [], person.id);
   const live = new Set((data.transactions || []).filter(t => !t.deleted).map(t => t.id));
   const gameyas = (data.gameyas || []).filter(g => !g.archived).map(g => {
@@ -743,7 +769,15 @@ function buildShareSnapshot(data, person, ownerUid, lang, balance) {
     lang: lang || "en",
     balance: round2(balance || 0),
     rows,
-    gameyas
+    gameyas,
+    // Only what the person needs to follow their own requests (no free text).
+    requests: (requests || []).slice().sort((a, b) => a.createdAt < b.createdAt ? 1 : -1).slice(0, 30).map(r => ({
+      id: r.id,
+      amount: Number(r.amount) || 0,
+      method: r.method === "transfer" ? "transfer" : "cash",
+      status: r.status === "approved" || r.status === "rejected" ? r.status : "pending",
+      createdAt: r.createdAt || ""
+    }))
   };
 }
 /* GAMEYA-HELPERS-END */
@@ -1172,6 +1206,10 @@ function App() {
   const displayFont = lang === "ar" ? "'Cairo', sans-serif" : "'Fraunces', serif";
   const bodyFont = lang === "ar" ? "'Cairo', sans-serif" : "'Inter', sans-serif";
   const ledger = useMemo(() => computeLedger(data.transactions), [data.transactions]);
+  const [requests, setRequests] = useState({});
+  const requestsRef = React.useRef({});
+  requestsRef.current = requests;
+  const [requestSheet, setRequestSheet] = useState(null);
   const publishedRef = React.useRef({});
   const [shareSyncError, setShareSyncError] = useState(false);
   useEffect(() => {
@@ -1183,7 +1221,8 @@ function App() {
     const timer = setTimeout(async () => {
       let failed = false;
       for (const p of shared) {
-        const snap = buildShareSnapshot(data, p, currentUid, data.lang || "en", ledger.cpBal[p.id] || 0);
+        if (requests[p.id] === undefined) continue; // wait for the first read of her requests
+        const snap = buildShareSnapshot(data, p, currentUid, data.lang || "en", ledger.cpBal[p.id] || 0, requests[p.id]);
         const key = JSON.stringify(snap);
         if (publishedRef.current[p.shareToken] === key) continue;
         try {
@@ -1201,7 +1240,41 @@ function App() {
     }, 1200);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data, hasLoaded, loadError, ledger]);
+  }, [data, hasLoaded, loadError, ledger, requests]);
+  const shareTokensKey = data.counterparties.filter(p => p.shareToken).map(p => p.id + ":" + p.shareToken).join("|");
+  useEffect(() => {
+    // Live list of withdrawal requests that people sent through their links.
+    if (!hasLoaded || loadError) return;
+    const pairs = shareTokensKey ? shareTokensKey.split("|").map(x => x.split(":")) : [];
+    const ids = new Set(pairs.map(x => x[0]));
+    setRequests(r => {
+      const keep = Object.fromEntries(Object.entries(r).filter(([pid]) => ids.has(pid)));
+      return Object.keys(keep).length === Object.keys(r).length ? r : keep;
+    });
+    const unsubs = pairs.map(([pid, token]) => firebase.firestore().collection("shares").doc(token).collection("requests").onSnapshot(snap => {
+      const list = [];
+      snap.forEach(d => list.push({
+        id: d.id,
+        ...d.data()
+      }));
+      setRequests(r => ({
+        ...r,
+        [pid]: list
+      }));
+    }, err => {
+      console.error("Requests listener failed", err);
+      setRequests(r => ({
+        ...r,
+        [pid]: r[pid] || []
+      }));
+    }));
+    return () => unsubs.forEach(u => u && u());
+  }, [hasLoaded, loadError, shareTokensKey]);
+  const pendingRequests = useMemo(() => data.counterparties.flatMap(p => (requests[p.id] || []).filter(r => r.status === "pending").map(r => ({
+    ...r,
+    personId: p.id,
+    personName: p.name
+  }))).sort((a, b) => a.createdAt < b.createdAt ? -1 : 1), [data.counterparties, requests]);
   const gameyaItemsAll = useMemo(() => allGameyaItems(data.gameyas, data.transactions), [data.gameyas, data.transactions]);
   const totalAccounts = Object.values(ledger.accountBal).reduce((a, b) => a + b, 0);
   const totalCounterparties = Object.values(ledger.cpBal).reduce((a, b) => a + b, 0);
@@ -1491,6 +1564,28 @@ function App() {
       }
     }
     setShareToken(id, newShareToken());
+  };
+
+  // Approve = (1) mark the request approved in Firestore, only then (2) record the Money Out.
+  // If (1) fails nothing is recorded, so a retry can never double-pay.
+  const resolveRequest = async (personId, req, decision, tx) => {
+    const p = data.counterparties.find(x => x.id === personId);
+    if (!p || !p.shareToken) throw new Error("no link");
+    const cur = (requestsRef.current[personId] || []).find(x => x.id === req.id);
+    if (!cur || cur.status !== "pending") return false;
+    const txId = decision === "approved" ? uid() : null;
+    await firebase.firestore().collection("shares").doc(p.shareToken).collection("requests").doc(req.id).update({
+      status: decision,
+      resolvedAt: new Date().toISOString(),
+      ...(txId ? {
+        txId
+      } : {})
+    });
+    if (decision === "approved") addTransaction({
+      ...tx,
+      id: txId
+    });
+    return true;
   };
 
   /* ---------- Gam'eyas ---------- */
@@ -1800,7 +1895,11 @@ function App() {
     enableShare,
     disableShare,
     regenShare,
-    shareSyncError
+    shareSyncError,
+    requests,
+    pendingRequests,
+    resolveRequest,
+    setRequestSheet
   };
   return /*#__PURE__*/React.createElement("div", {
     dir: dir,
@@ -1876,7 +1975,11 @@ function App() {
     ctx: ctx
   }), page === "gameyas" && /*#__PURE__*/React.createElement(GameyasPage, {
     ctx: ctx
-  }))), confirmItems && /*#__PURE__*/React.createElement(GameyaConfirmSheet, {
+  }))), requestSheet && /*#__PURE__*/React.createElement(RequestSheet, {
+    req: requestSheet,
+    ctx: ctx,
+    onClose: () => setRequestSheet(null)
+  }), confirmItems && /*#__PURE__*/React.createElement(GameyaConfirmSheet, {
     items: confirmItems,
     ctx: ctx,
     onClose: () => setConfirmItems(null)
@@ -2047,6 +2150,8 @@ function Dashboard({
     title: t.dashboard,
     displayFont: displayFont
   }), /*#__PURE__*/React.createElement(DueSoonCard, {
+    ctx: ctx
+  }), /*#__PURE__*/React.createElement(RequestsCard, {
     ctx: ctx
   }), /*#__PURE__*/React.createElement("div", {
     style: {
@@ -2898,6 +3003,225 @@ function PeoplePage({
 }
 
 /* ============================================================
+   WITHDRAWAL REQUESTS (treasurer side)
+   ============================================================ */
+function RequestsCard({
+  ctx
+}) {
+  const ce = React.createElement;
+  const {
+    t,
+    pendingRequests,
+    setRequestSheet
+  } = ctx;
+  if (!pendingRequests || !pendingRequests.length) return null;
+  return ce("div", {
+    style: {
+      background: COLORS.goldSoft,
+      border: `1px solid ${COLORS.gold}`,
+      borderRadius: 12,
+      padding: "14px 18px",
+      marginBottom: 20
+    }
+  }, ce("div", {
+    style: {
+      fontWeight: 700,
+      marginBottom: 6
+    }
+  }, `${t.reqTitle} (${pendingRequests.length})`), pendingRequests.map(r => ce("div", {
+    key: r.personId + r.id,
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      gap: 10,
+      padding: "9px 0",
+      borderTop: `1px solid ${COLORS.line}`
+    }
+  }, ce("div", null, ce("div", {
+    style: {
+      fontWeight: 600
+    }
+  }, r.personName), ce("div", {
+    style: {
+      fontSize: 12,
+      color: COLORS.inkSoft
+    }
+  }, (r.method === "transfer" ? t.reqTransfer : t.reqCash) + " · " + fmtDate((r.createdAt || "").slice(0, 10)))), ce("div", {
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10
+    }
+  }, ce("span", {
+    className: "mono",
+    style: {
+      fontWeight: 600
+    }
+  }, fmt(r.amount)), ce(Btn, {
+    small: true,
+    onClick: () => setRequestSheet(r)
+  }, t.reqReview)))));
+}
+function RequestSheet({
+  req,
+  ctx,
+  onClose
+}) {
+  const ce = React.createElement;
+  const {
+    t,
+    data,
+    ledger,
+    displayFont,
+    resolveRequest
+  } = ctx;
+  const [accountId, setAccountId] = useState("");
+  const [amount, setAmount] = useState(String(req.amount));
+  const [date, setDate] = useState(todayISO());
+  const [fee, setFee] = useState("");
+  const [bearer, setBearer] = useState("self");
+  const [err, setErr] = useState("");
+  const [busy, setBusy] = useState(false);
+  const account = data.accounts.find(a => a.id === accountId);
+  const showFee = !!(account && account.feeEnabled);
+  const bal = ledger.cpBal[req.personId] || 0;
+  const balColor = Math.abs(bal) < 0.01 ? COLORS.inkSoft : bal > 0 ? COLORS.green : COLORS.rust;
+  const balText = Math.abs(bal) < 0.01 ? t.settled : bal > 0 ? t.owedToThem : t.owesYou;
+  const methodLabel = req.method === "transfer" ? t.reqTransfer : t.reqCash;
+  const run = async (decision, tx) => {
+    setBusy(true);
+    setErr("");
+    try {
+      await resolveRequest(req.personId, req, decision, tx);
+      onClose();
+    } catch (e) {
+      console.error("Request update failed", e);
+      setErr(t.reqFail);
+      setBusy(false);
+    }
+  };
+  const approve = () => {
+    if (!accountId) return setErr(t.needAccount);
+    if (!isoOk(date)) return setErr(t.errDate);
+    const amt = Number(amount);
+    if (!(amt > 0)) return setErr(t.needAmount);
+    const f = showFee ? Number(fee) || 0 : 0;
+    run("approved", {
+      type: "OUT",
+      amount: amt,
+      txDate: date,
+      note: [t.reqNote, methodLabel, req.details, req.note].filter(Boolean).join(" — "),
+      accountId,
+      toAccountId: null,
+      counterpartyId: req.personId,
+      toCounterpartyId: null,
+      feeAmount: f,
+      feeBearerType: f > 0 ? bearer : "loss",
+      feeBearerCounterpartyId: null
+    });
+  };
+  const reject = () => {
+    if (window.confirm(t.reqRejectConfirm)) run("rejected", null);
+  };
+  const row = (label, value) => ce("div", {
+    style: {
+      display: "flex",
+      justifyContent: "space-between",
+      gap: 12,
+      fontSize: 13.5,
+      padding: "4px 0"
+    }
+  }, ce("span", {
+    style: {
+      color: COLORS.inkSoft
+    }
+  }, label), ce("span", {
+    style: {
+      fontWeight: 600,
+      textAlign: "end",
+      overflowWrap: "anywhere"
+    }
+  }, value));
+  return ce(Modal, {
+    title: `${t.reqTitle} — ${req.personName}`,
+    onClose,
+    displayFont
+  }, ce("div", {
+    style: {
+      background: COLORS.paper,
+      borderRadius: 10,
+      padding: "8px 12px",
+      marginBottom: 14
+    }
+  }, row(t.reqRequested, ce("span", {
+    className: "mono"
+  }, fmt(req.amount))), row(t.moneyOut, methodLabel), req.details ? row(t.reqDetails, req.details) : null, req.note ? row(t.note, req.note) : null, row(t.reqBalance, ce("span", {
+    style: {
+      color: balColor
+    }
+  }, balText + " ", ce("span", {
+    className: "mono"
+  }, fmt(Math.abs(bal)))))), ce(Field, {
+    label: t.selectAccount
+  }, ce("select", {
+    style: inputStyle,
+    value: accountId,
+    onChange: e => setAccountId(e.target.value)
+  }, ce("option", {
+    value: ""
+  }, "—"), data.accounts.map(a => ce("option", {
+    key: a.id,
+    value: a.id
+  }, a.name)))), ce(Field, {
+    label: t.amount
+  }, ce(AmountField, {
+    value: amount,
+    onChange: setAmount
+  })), ce(Field, {
+    label: t.date
+  }, ce("input", {
+    type: "date",
+    style: inputStyle,
+    value: date,
+    max: todayISO(),
+    onChange: e => setDate(e.target.value)
+  })), showFee && ce(Field, {
+    label: t.fee
+  }, ce(AmountField, {
+    value: fee,
+    onChange: setFee
+  })), showFee && ce(Field, {
+    label: t.feeBearer
+  }, ce("select", {
+    style: inputStyle,
+    value: bearer,
+    onChange: e => setBearer(e.target.value)
+  }, ce("option", {
+    value: "self"
+  }, t.self), ce("option", {
+    value: "loss"
+  }, t.loss))), err && ce("div", {
+    style: {
+      color: COLORS.rust,
+      fontSize: 12.5,
+      marginBottom: 10
+    }
+  }, err), ce("div", {
+    style: {
+      display: "flex",
+      gap: 8,
+      justifyContent: "space-between"
+    }
+  }, ce(Btn, {
+    variant: "outline",
+    onClick: busy ? () => {} : reject
+  }, t.reqReject), ce(Btn, {
+    onClick: busy ? () => {} : approve
+  }, t.reqApprove)));
+}
+
+/* ============================================================
    PERSONAL LINK MODAL (treasurer side)
    ============================================================ */
 function ShareModal({
@@ -2920,6 +3244,8 @@ function ShareModal({
   const p = data.counterparties.find(x => x.id === personId);
   if (!p) return null;
   const url = p.shareToken ? shareUrl(p.shareToken) : "";
+  const pend = ((ctx.requests || {})[p.id] || []).filter(r => r.status === "pending").length;
+  const warn = pend ? t.reqPendingWarn.replace("{n}", pend) + "\n\n" : "";
   const copy = () => {
     const done = () => {
       setCopied(true);
@@ -3006,13 +3332,13 @@ function ShareModal({
     small: true,
     variant: "outline",
     onClick: guarded(async () => {
-      if (window.confirm(t.shareRegenConfirm)) await regenShare(p.id);
+      if (window.confirm(warn + t.shareRegenConfirm)) await regenShare(p.id);
     })
   }, t.shareRegen), ce(Btn, {
     small: true,
     variant: "ghost",
     onClick: guarded(async () => {
-      if (window.confirm(t.shareOffConfirm)) await disableShare(p.id);
+      if (window.confirm(warn + t.shareOffConfirm)) await disableShare(p.id);
     })
   }, t.shareOff))));
 }
@@ -4777,7 +5103,24 @@ const SV = {
     FEE_OTHER: "Fee",
     P2P_OUT: "Transfer out",
     P2P_IN: "Transfer in",
-    FEE_ALLOC: "Fee allocation"
+    FEE_ALLOC: "Fee allocation",
+    reqTitle: "Request a withdrawal",
+    reqAmount: "Amount",
+    reqMethod: "How to receive",
+    cash: "Cash",
+    transfer: "Transfer",
+    reqDetails: "Transfer details (account / Instapay / phone)",
+    reqNote: "Note (optional)",
+    reqSend: "Send request",
+    reqSent: "Request sent. You'll see its status here once it's reviewed.",
+    reqBadAmount: "Enter a valid amount.",
+    reqNeedDetails: "Enter the transfer details.",
+    reqTooMany: "You already have 3 requests waiting for review.",
+    reqFail: "Couldn't send. Check your connection and try again.",
+    reqMine: "Your requests",
+    pending: "Waiting for review",
+    approved: "Approved",
+    rejected: "Rejected"
   },
   ar: {
     appName: "الخزينة",
@@ -4808,7 +5151,24 @@ const SV = {
     FEE_OTHER: "رسوم",
     P2P_OUT: "تحويل صادر",
     P2P_IN: "تحويل وارد",
-    FEE_ALLOC: "توزيع رسوم"
+    FEE_ALLOC: "توزيع رسوم",
+    reqTitle: "اطلب سحب",
+    reqAmount: "المبلغ",
+    reqMethod: "طريقة الاستلام",
+    cash: "كاش",
+    transfer: "تحويل",
+    reqDetails: "بيانات التحويل (رقم الحساب / انستاباي / الموبايل)",
+    reqNote: "ملاحظة (اختياري)",
+    reqSend: "إرسال الطلب",
+    reqSent: "تم إرسال الطلب. هتشوف حالته هنا بعد المراجعة.",
+    reqBadAmount: "اكتب مبلغ صحيح.",
+    reqNeedDetails: "اكتب بيانات التحويل.",
+    reqTooMany: "عندك 3 طلبات قيد المراجعة بالفعل.",
+    reqFail: "تعذّر الإرسال. تأكد من الاتصال وحاول تاني.",
+    reqMine: "طلباتك",
+    pending: "قيد المراجعة",
+    approved: "تمت الموافقة",
+    rejected: "مرفوض"
   }
 };
 function ShareView({
@@ -4821,6 +5181,21 @@ function ShareView({
   });
   const [lang, setLang] = useState(null);
   const [showDone, setShowDone] = useState({});
+  const lsKey = "reqs:" + token.slice(0, 12);
+  const [mine, setMine] = useState(() => {
+    try {
+      return JSON.parse(window.localStorage.getItem(lsKey) || "[]");
+    } catch (e) {
+      return [];
+    }
+  });
+  const [reqAmount, setReqAmount] = useState("");
+  const [reqMethod, setReqMethod] = useState("cash");
+  const [reqDetails, setReqDetails] = useState("");
+  const [reqNote, setReqNote] = useState("");
+  const [reqErr, setReqErr] = useState("");
+  const [reqMsg, setReqMsg] = useState("");
+  const [reqBusy, setReqBusy] = useState(false);
   const load = useCallback(() => {
     setState({
       status: "loading"
@@ -4894,6 +5269,195 @@ function ShareView({
     const settled = Math.abs(bal) < 0.01;
     const color = settled ? COLORS.inkSoft : bal > 0 ? COLORS.green : COLORS.rust;
     const rows = [...(d.rows || [])].reverse();
+    // Her requests: what she sent from this device (instantly) + statuses published by the treasurer.
+    const byId = {};
+    mine.forEach(r => {
+      byId[r.id] = {
+        ...r,
+        status: "pending"
+      };
+    });
+    (d.requests || []).forEach(r => {
+      byId[r.id] = {
+        ...(byId[r.id] || {}),
+        ...r
+      };
+    });
+    const recent = Date.now() - 48 * 3600 * 1000;
+    const inSnap = new Set((d.requests || []).map(r => r.id));
+    const allReqs = Object.values(byId).filter(r => inSnap.has(r.id) || new Date(r.createdAt).getTime() > recent).sort((a, b) => a.createdAt < b.createdAt ? 1 : -1).slice(0, 10);
+    const pendingCount = allReqs.filter(r => r.status === "pending").length;
+    const parseAmt = txt => {
+      const latin = String(txt).replace(/[٠-٩]/g, ch => String(ch.charCodeAt(0) - 1632)).replace(/[٬, ]/g, "").replace(/٫/g, ".");
+      const n = Number(latin);
+      return Number.isFinite(n) ? Math.round(n * 100) / 100 : NaN;
+    };
+    const submitReq = async () => {
+      const amt = parseAmt(reqAmount);
+      setReqMsg("");
+      if (!(amt > 0) || amt > 100000000) return setReqErr(v.reqBadAmount);
+      if (reqMethod === "transfer" && !reqDetails.trim()) return setReqErr(v.reqNeedDetails);
+      if (pendingCount >= 3) return setReqErr(v.reqTooMany);
+      setReqBusy(true);
+      setReqErr("");
+      const id = uid();
+      const createdAt = new Date().toISOString();
+      const docData = {
+        amount: amt,
+        method: reqMethod,
+        details: reqMethod === "transfer" ? reqDetails.trim().slice(0, 200) : "",
+        note: reqNote.trim().slice(0, 200),
+        status: "pending",
+        createdAt
+      };
+      try {
+        await firebase.firestore().collection("shares").doc(token).collection("requests").doc(id).set(docData);
+        const next = [{
+          id,
+          amount: amt,
+          method: reqMethod,
+          createdAt
+        }, ...mine].slice(0, 20);
+        setMine(next);
+        try {
+          window.localStorage.setItem(lsKey, JSON.stringify(next));
+        } catch (e) {}
+        setReqAmount("");
+        setReqDetails("");
+        setReqNote("");
+        setReqMsg(v.reqSent);
+      } catch (e) {
+        console.error("Request failed", e);
+        setReqErr(v.reqFail);
+      }
+      setReqBusy(false);
+    };
+    const field = (label, child) => ce("div", {
+      style: {
+        marginBottom: 10
+      }
+    }, ce("div", {
+      style: {
+        fontSize: 12,
+        color: COLORS.inkSoft,
+        marginBottom: 4
+      }
+    }, label), child);
+    const pill = (key, label) => ce("button", {
+      key,
+      type: "button",
+      "aria-pressed": reqMethod === key,
+      onClick: () => setReqMethod(key),
+      style: {
+        flex: 1,
+        padding: "10px 0",
+        borderRadius: 8,
+        fontSize: 14,
+        fontWeight: 600,
+        border: `1px solid ${reqMethod === key ? COLORS.ink : COLORS.line}`,
+        background: reqMethod === key ? COLORS.ink : COLORS.paperCard,
+        color: reqMethod === key ? "#fff" : COLORS.ink
+      }
+    }, label);
+    const requestUI = ce("div", null, sectionTitle(v.reqTitle), ce("div", {
+      style: card
+    }, field(v.reqAmount, ce("input", {
+      name: "amount",
+      type: "tel",
+      inputMode: "decimal",
+      dir: "ltr",
+      className: "mono",
+      autoComplete: "off",
+      style: {
+        ...inputStyle,
+        textAlign: "left"
+      },
+      value: reqAmount,
+      onChange: e => setReqAmount(e.target.value)
+    })), field(v.reqMethod, ce("div", {
+      style: {
+        display: "flex",
+        gap: 8
+      }
+    }, pill("cash", v.cash), pill("transfer", v.transfer))), reqMethod === "transfer" && field(v.reqDetails, ce("input", {
+      name: "details",
+      maxLength: 200,
+      autoComplete: "off",
+      style: inputStyle,
+      value: reqDetails,
+      onChange: e => setReqDetails(e.target.value)
+    })), field(v.reqNote, ce("input", {
+      name: "note",
+      maxLength: 200,
+      autoComplete: "off",
+      style: inputStyle,
+      value: reqNote,
+      onChange: e => setReqNote(e.target.value)
+    })), reqErr && ce("div", {
+      style: {
+        color: COLORS.rust,
+        fontSize: 13,
+        marginBottom: 8
+      }
+    }, reqErr), reqMsg && ce("div", {
+      style: {
+        color: COLORS.green,
+        fontSize: 13,
+        marginBottom: 8
+      }
+    }, reqMsg), ce("button", {
+      type: "button",
+      onClick: reqBusy ? undefined : submitReq,
+      style: {
+        width: "100%",
+        padding: "12px 0",
+        borderRadius: 10,
+        border: "none",
+        background: COLORS.ink,
+        color: "#fff",
+        fontSize: 15,
+        fontWeight: 600,
+        opacity: reqBusy ? 0.6 : 1
+      }
+    }, v.reqSend)), allReqs.length > 0 && ce("div", {
+      style: {
+        ...card,
+        padding: "4px 14px"
+      }
+    }, ce("div", {
+      style: {
+        fontSize: 12.5,
+        color: COLORS.inkSoft,
+        padding: "10px 0 2px"
+      }
+    }, v.reqMine), allReqs.map((r, i) => ce("div", {
+      key: r.id,
+      style: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        gap: 10,
+        padding: "10px 0",
+        borderTop: i ? `1px solid ${COLORS.line}` : "none"
+      }
+    }, ce("div", null, ce("div", {
+      className: "mono",
+      style: {
+        fontWeight: 600,
+        fontSize: 14
+      }
+    }, fmt(r.amount)), ce("div", {
+      style: {
+        fontSize: 12,
+        color: COLORS.inkSoft
+      }
+    }, (r.method === "transfer" ? v.transfer : v.cash) + " · " + fmtDate((r.createdAt || "").slice(0, 10)))), ce("div", {
+      style: {
+        fontSize: 12.5,
+        fontWeight: 600,
+        color: r.status === "approved" ? COLORS.green : r.status === "rejected" ? COLORS.rust : COLORS.gold
+      }
+    }, v[r.status] || r.status)))));
     body = ce("div", null, ce("h1", {
       style: {
         fontFamily: displayFont,
@@ -4923,7 +5487,7 @@ function ShareView({
         fontSize: 11.5,
         color: COLORS.inkSoft
       }
-    }, v.updated, ": ", new Date(d.updatedAt).toLocaleString())), sectionTitle(v.statement), rows.length === 0 ? ce("div", {
+    }, v.updated, ": ", new Date(d.updatedAt).toLocaleString())), requestUI, sectionTitle(v.statement), rows.length === 0 ? ce("div", {
       style: {
         ...card,
         color: COLORS.inkSoft
