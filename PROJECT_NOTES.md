@@ -44,6 +44,7 @@ A single-user "small bank" ledger for money held for family and friends. UI is A
 - Snapshots are re-published automatically (1.2 s debounce, only when changed, only after a successful load). A red notice in the modal shows if publishing failed.
 - **Revoke / New link:** overwrites the old `shares/{token}` with `{ownerUid, revoked:true}` (a tombstone, not a delete, so it works even if the doc never existed). If the revoke write fails, nothing changes and an alert shows (never a silent leak).
 - Viewer: public, read-only, no sign-in, AR/EN toggle (defaults to the app language); balance, newest-first statement, gam'eya upcoming items with "show completed".
+- **What each link shows (per person):** five switches in the link window — Balance, Statement, Notes on transactions, Gam'eya schedule, Withdrawal requests (stored as `shareOpts` on the person; missing = on, so old links are unchanged). Anything switched off is left OUT of the published snapshot (not just hidden on the page). Balance off also removes the running totals.
 - Rules: public `get` on `shares/{token}`, no `list`, owner-only writes (see `firestore.rules`).
 
 ## Withdrawal requests via the link — done
@@ -52,6 +53,12 @@ A single-user "small bank" ledger for money held for family and friends. UI is A
 - Safety: approve first marks the request approved in Firestore and only then records the transaction, so a failed update records nothing; a request already handled can't be approved twice.
 - Statuses (pending/approved/rejected, amount, method; no free text) are published inside her snapshot so she sees them on her page; her own new requests also show instantly from her device (localStorage), pending ones older than 48 h that never reached the snapshot are hidden. Max 3 pending per person (client-side only).
 - Known limits: the 3-pending cap and amount limits can be bypassed by someone calling Firestore directly with the link (rules can't count documents) — worst case is junk pending requests you reject. Regenerating/turning off a link hides its pending requests (the app warns first).
+
+## Telegram notification — built, waiting for the Worker URL
+- When a person sends a withdrawal request, her page pings a Cloudflare Worker (`telegram-worker.js`, tested by `test-worker.mjs`) which sends the Telegram message. The bot token lives ONLY in the Worker's secrets, never in `index.html`.
+- `index.html` has `const NOTIFY_URL = "";` (near `const SV`). Empty = off. After deploying the Worker (steps in `TELEGRAM_SETUP.md`), paste its URL there and re-run the tests (`test-app.js` swaps in a fake URL itself).
+- The Worker re-reads `shares/{token}` (public get), refuses unknown/revoked links, takes the person's NAME from Firestore (not from the page); amount/method come from the page (notification only). Max 10 messages/hour per link (best effort).
+- The ping is fire-and-forget (`no-cors`): a failed notification never fails the request.
 
 ## Backlog (decided direction, not built)
 1. Platform limits: iOS home-screen web apps cannot have light/dark icon variants; a true background daily sync needs a server.

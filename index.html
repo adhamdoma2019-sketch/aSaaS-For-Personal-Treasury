@@ -177,7 +177,13 @@ const T = {
     actions: "Actions",
     close: "Close",
     shareLink: "Personal link",
-    shareIntro: "A private, read-only page for this person: balance, statement and gam'eya schedule. Anyone who has the link can see it.",
+    shareIntro: "A private, read-only page for this person. Anyone who has the link can see it.",
+    shareSees: "What this person can see",
+    shareOptBalance: "Balance",
+    shareOptStatement: "Statement",
+    shareOptNotes: "Notes on transactions",
+    shareOptGameya: "Gam'eya schedule",
+    shareOptRequests: "Withdrawal requests",
     shareNote: "Notes you write on transactions are visible to them. Other people's names are not shown.",
     shareCreate: "Create link",
     shareCopy: "Copy link",
@@ -385,7 +391,13 @@ const T = {
     actions: "إجراءات",
     close: "إغلاق",
     shareLink: "رابط شخصي",
-    shareIntro: "صفحة خاصة للاطلاع فقط لهذا الشخص: الرصيد وكشف الحساب وجدول الجمعية. أي شخص معه الرابط يقدر يشوفها.",
+    shareIntro: "صفحة خاصة للاطلاع فقط لهذا الشخص. أي شخص معه الرابط يقدر يشوفها.",
+    shareSees: "إيه اللي يقدر يشوفه الشخص ده",
+    shareOptBalance: "الرصيد",
+    shareOptStatement: "كشف الحساب",
+    shareOptNotes: "ملاحظات المعاملات",
+    shareOptGameya: "جدول الجمعية",
+    shareOptRequests: "طلبات السحب",
     shareNote: "الملاحظات اللي بتكتبها على المعاملات بتظهر له. أسماء الأشخاص الآخرين مش بتظهر.",
     shareCreate: "إنشاء الرابط",
     shareCopy: "نسخ الرابط",
@@ -702,6 +714,16 @@ function shareUrl(token) {
   return l.origin + l.pathname + "#s=" + token;
 }
 const round2 = n => Math.round(n * 100) / 100;
+const SHARE_OPT_KEYS = ["balance", "statement", "notes", "gameya", "requests"];
+// What a person's link may show. Everything is on unless explicitly switched off,
+// so links made before this setting existed keep working as they did.
+function shareOptsOf(p) {
+  const o = {};
+  SHARE_OPT_KEYS.forEach(k => {
+    o[k] = !(p && p.shareOpts && p.shareOpts[k] === false);
+  });
+  return o;
+}
 function personStatementRows(transactions, personId) {
   const live = transactions.filter(tr => !tr.deleted);
   const sorted = [...live].sort((a, b) => a.txDate < b.txDate ? -1 : a.txDate > b.txDate ? 1 : 0);
@@ -744,9 +766,15 @@ function personStatementRows(transactions, personId) {
   return rows;
 }
 function buildShareSnapshot(data, person, ownerUid, lang, balance, requests) {
-  const rows = personStatementRows(data.transactions || [], person.id);
+  const opts = shareOptsOf(person);
+  // Anything switched off is left out of the published snapshot entirely (not just hidden on the page).
+  const rows = opts.statement ? personStatementRows(data.transactions || [], person.id).map(r => ({
+    ...r,
+    running: opts.balance ? r.running : null,
+    note: opts.notes ? r.note : ""
+  })) : [];
   const live = new Set((data.transactions || []).filter(t => !t.deleted).map(t => t.id));
-  const gameyas = (data.gameyas || []).filter(g => !g.archived).map(g => {
+  const gameyas = !opts.gameya ? [] : (data.gameyas || []).filter(g => !g.archived).map(g => {
     const items = gameyaItems(g, live).filter(i => i.personId === person.id);
     if (!items.length) return null;
     return {
@@ -767,11 +795,12 @@ function buildShareSnapshot(data, person, ownerUid, lang, balance, requests) {
     ownerUid: ownerUid || null,
     personName: person.name,
     lang: lang || "en",
-    balance: round2(balance || 0),
+    balance: opts.balance ? round2(balance || 0) : null,
+    opts,
     rows,
     gameyas,
     // Only what the person needs to follow their own requests (no free text).
-    requests: (requests || []).slice().sort((a, b) => a.createdAt < b.createdAt ? 1 : -1).slice(0, 30).map(r => ({
+    requests: (!opts.requests ? [] : requests || []).slice().sort((a, b) => a.createdAt < b.createdAt ? 1 : -1).slice(0, 30).map(r => ({
       id: r.id,
       amount: Number(r.amount) || 0,
       method: r.method === "transfer" ? "transfer" : "cash",
@@ -1539,6 +1568,16 @@ function App() {
     delete publishedRef.current[token];
   };
   const enableShare = id => setShareToken(id, newShareToken());
+  const setShareOpt = (id, key, value) => setData(d => ({
+    ...d,
+    counterparties: d.counterparties.map(p => p.id === id ? {
+      ...p,
+      shareOpts: {
+        ...shareOptsOf(p),
+        [key]: !!value
+      }
+    } : p)
+  }));
   const disableShare = async id => {
     const p = data.counterparties.find(x => x.id === id);
     if (p && p.shareToken) {
@@ -1899,7 +1938,8 @@ function App() {
     requests,
     pendingRequests,
     resolveRequest,
-    setRequestSheet
+    setRequestSheet,
+    setShareOpt
   };
   return /*#__PURE__*/React.createElement("div", {
     dir: dir,
@@ -3237,7 +3277,8 @@ function ShareModal({
     enableShare,
     disableShare,
     regenShare,
-    shareSyncError
+    shareSyncError,
+    setShareOpt
   } = ctx;
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -3246,6 +3287,47 @@ function ShareModal({
   const url = p.shareToken ? shareUrl(p.shareToken) : "";
   const pend = ((ctx.requests || {})[p.id] || []).filter(r => r.status === "pending").length;
   const warn = pend ? t.reqPendingWarn.replace("{n}", pend) + "\n\n" : "";
+  const opts = shareOptsOf(p);
+  const optLabels = {
+    balance: t.shareOptBalance,
+    statement: t.shareOptStatement,
+    notes: t.shareOptNotes,
+    gameya: t.shareOptGameya,
+    requests: t.shareOptRequests
+  };
+  const optsBlock = ce("div", {
+    style: {
+      border: `1px solid ${COLORS.line}`,
+      borderRadius: 10,
+      padding: "10px 12px",
+      marginBottom: 14
+    }
+  }, ce("div", {
+    style: {
+      fontSize: 12.5,
+      fontWeight: 700,
+      marginBottom: 6
+    }
+  }, t.shareSees), SHARE_OPT_KEYS.map(k => ce("label", {
+    key: k,
+    style: {
+      display: "flex",
+      alignItems: "center",
+      gap: 10,
+      padding: "7px 0",
+      fontSize: 14,
+      cursor: "pointer"
+    }
+  }, ce("input", {
+    type: "checkbox",
+    name: "opt-" + k,
+    checked: opts[k],
+    onChange: e => setShareOpt(p.id, k, e.target.checked),
+    style: {
+      width: 18,
+      height: 18
+    }
+  }), optLabels[k])));
   const copy = () => {
     const done = () => {
       setCopied(true);
@@ -3278,7 +3360,7 @@ function ShareModal({
       lineHeight: 1.6,
       marginBottom: 12
     }
-  }, t.shareIntro), !p.shareToken ? ce("div", {
+  }, t.shareIntro), optsBlock, !p.shareToken ? ce("div", {
     style: {
       display: "flex",
       justifyContent: "flex-end"
@@ -3316,7 +3398,7 @@ function ShareModal({
       padding: "8px 10px",
       marginBottom: 12
     }
-  }, t.shareSyncErr), ce("div", {
+  }, t.shareSyncErr), opts.notes && ce("div", {
     style: {
       fontSize: 12,
       color: COLORS.inkSoft,
@@ -5073,6 +5155,9 @@ function GameyasPage({
    SHARED PAGE (person side): public, read-only, no sign-in.
    Reads exactly one document: shares/{token}.
    ============================================================ */
+// Telegram notification: URL of your Cloudflare Worker (see telegram-worker.js). Empty = off.
+// It holds the bot token, never this page. It is public by design; the Worker re-checks the link itself.
+const NOTIFY_URL = "";
 const SV = {
   en: {
     appName: "Treasury",
@@ -5265,6 +5350,14 @@ function ShareView({
       fontWeight: 600
     }
   }, v.retry));else {
+    const o = {
+      balance: true,
+      statement: true,
+      notes: true,
+      gameya: true,
+      requests: true,
+      ...(d.opts || {})
+    };
     const bal = Number(d.balance) || 0;
     const settled = Math.abs(bal) < 0.01;
     const color = settled ? COLORS.inkSoft : bal > 0 ? COLORS.green : COLORS.rust;
@@ -5326,6 +5419,24 @@ function ShareView({
         setReqDetails("");
         setReqNote("");
         setReqMsg(v.reqSent);
+        if (NOTIFY_URL) {
+          // Fire-and-forget: a failed notification must never fail the request itself.
+          try {
+            fetch(NOTIFY_URL, {
+              method: "POST",
+              mode: "no-cors",
+              keepalive: true,
+              headers: {
+                "Content-Type": "text/plain"
+              },
+              body: JSON.stringify({
+                token,
+                amount: amt,
+                method: reqMethod
+              })
+            }).catch(() => {});
+          } catch (e2) {}
+        }
       } catch (e) {
         console.error("Request failed", e);
         setReqErr(v.reqFail);
@@ -5464,7 +5575,7 @@ function ShareView({
         fontSize: 26,
         margin: "8px 0 14px"
       }
-    }, d.personName), ce("div", {
+    }, d.personName), o.balance && ce("div", {
       style: {
         ...card,
         background: settled ? COLORS.paperCard : bal > 0 ? COLORS.greenSoft : COLORS.rustSoft
@@ -5487,7 +5598,7 @@ function ShareView({
         fontSize: 11.5,
         color: COLORS.inkSoft
       }
-    }, v.updated, ": ", new Date(d.updatedAt).toLocaleString())), requestUI, sectionTitle(v.statement), rows.length === 0 ? ce("div", {
+    }, v.updated, ": ", new Date(d.updatedAt).toLocaleString())), o.requests && requestUI, o.statement && sectionTitle(v.statement), !o.statement ? null : rows.length === 0 ? ce("div", {
       style: {
         ...card,
         color: COLORS.inkSoft
@@ -5545,7 +5656,7 @@ function ShareView({
         fontSize: 11.5,
         color: COLORS.inkSoft
       }
-    }, fmt(r.running)))))), (d.gameyas || []).length > 0 && sectionTitle(v.gameya), (d.gameyas || []).map((g, gi) => {
+    }, o.balance && r.running != null ? fmt(r.running) : null))))), (d.gameyas || []).length > 0 && sectionTitle(v.gameya), (d.gameyas || []).map((g, gi) => {
       const open = !!showDone[gi];
       const items = [...g.items].sort((a, b) => a.date < b.date ? -1 : a.date > b.date ? 1 : 0);
       const upcoming = items.filter(i => i.status === "planned");
